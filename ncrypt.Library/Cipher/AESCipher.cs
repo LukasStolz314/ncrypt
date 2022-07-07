@@ -13,7 +13,7 @@ public class AESCipher
     public AESCipher(String key, CipherMode mode,
         ConvertType inputType, ConvertType outputType)
     {
-        _key = KeyManager.ToByteArray (key, inputType);
+        _key = Converter.ToByteArray (key, inputType);
         _mode = mode;
         _inputType = inputType;
         _outputType = outputType;
@@ -21,10 +21,11 @@ public class AESCipher
 
     public AESResult Encrypt(String plainText, String iv)
     {
+        // Create aes with given parameters
         Aes aes = CreateAes (iv);
-
         var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
+        // Encrypt plain text with generated encryptor
         Byte[] resultBytes;
         using (MemoryStream ms = new ())
         {
@@ -39,19 +40,21 @@ public class AESCipher
             resultBytes = ms.ToArray ();
         }
 
-        String result = KeyManager.ToString (resultBytes, _outputType);
-        String key = KeyManager.ToString (_key, _inputType);
+        // Return result object
+        String result = Converter.ToString (resultBytes, _outputType);
+        String key = Converter.ToString (_key, _inputType);
         return new (plainText, result, key, iv, _mode);
     }
 
     public AESResult Decrypt(String cipherText, String iv)
     {
+        //Create aes with given parameters
         Aes aes = CreateAes (iv);
-
         var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
+        // Decrypt cipher text with generated decryptor
         String result;
-        using (MemoryStream ms = new (KeyManager.ToByteArray (cipherText, _inputType)))
+        using (MemoryStream ms = new (Converter.ToByteArray (cipherText, _inputType)))
         {
             using (CryptoStream cs = new (ms, decryptor, CryptoStreamMode.Read))
             {
@@ -62,7 +65,8 @@ public class AESCipher
             }
         }
 
-        String key = KeyManager.ToString (_key, _inputType);
+        // Return result object
+        String key = Converter.ToString (_key, _inputType);
         return new (result, cipherText, key, iv, _mode);
     }
 
@@ -71,7 +75,7 @@ public class AESCipher
         Aes aes = Aes.Create ();
         aes.Key = _key;
         aes.Mode = _mode;
-        aes.IV = KeyManager.ToByteArray (iv, _inputType);
+        aes.IV = Converter.ToByteArray (iv, _inputType);
 
         return aes;
     }

@@ -17,16 +17,8 @@ builder.Services.AddSingleton<WeatherForecastService> ();
 var app = builder.Build ();
 
 
-
-
-AESCipher cipher = new("2222222222222222", CipherMode.CBC, ConvertType.UTF8, ConvertType.HEX);
-
-var result1 = cipher.Encrypt ("Hello, World", "2222222222222222");
-
-AESCipher cipher2 = new("32323232323232323232323232323232", CipherMode.CBC, ConvertType.HEX, ConvertType.ASCII);
-
-var result2 = cipher2.Decrypt (result1.CipherText, "32323232323232323232323232323232");
-
+RSACipher rsa = new ();
+rsa.GenerateKeyPair (1024);
 
 
 

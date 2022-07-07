@@ -9,7 +9,7 @@ public enum ConvertType
     ASCII
 }
 
-internal class KeyManager
+internal class Converter
 {
     internal static String ToString (Byte[] key, ConvertType type) => type switch
     {
@@ -18,6 +18,22 @@ internal class KeyManager
         ConvertType.HEX => Convert.ToHexString (key),
         _ => throw new NotImplementedException ()
     };
+
+    internal static String ToStringWithFixedLineLength(String text, Int32 lineLength)
+    {
+        String remainedText = text;
+        StringBuilder sb = new();
+        
+        while(remainedText.Count() > lineLength)
+        {
+            sb.AppendLine (new(remainedText.Take (lineLength).ToArray()));
+            remainedText = remainedText.Remove (0, lineLength);
+        }
+
+        sb.Append (remainedText);
+
+        return sb.ToString();
+    }
 
     internal static Byte[] ToByteArray (String key, ConvertType type) => type switch
     {
