@@ -18,7 +18,10 @@ var app = builder.Build ();
 
 
 RSACipher rsa = new ();
-rsa.GenerateKeyPair (1024);
+var keys = rsa.GenerateKeyPair (1024);
+var cipherText = rsa.Encrypt (keys.PublicKey, "Hello, World!");
+var plain = rsa.Decrypt (keys.PrivateKey, cipherText);
+
 
 
 

@@ -19,9 +19,9 @@ public class RSACipher
 
         // Write public key to pem format
         StringBuilder publicSB = new ();
-        publicSB.AppendLine ("-----BEGIN PUBLIC KEY-----");
+        publicSB.AppendLine ("-----BEGIN RSA PUBLIC KEY-----");
         publicSB.AppendLine (Converter.ToStringWithFixedLineLength (publicKey, 64));
-        publicSB.AppendLine ("-----END PUBLIC KEY-----");
+        publicSB.AppendLine ("-----END RSA PUBLIC KEY-----");
 
         // Write private key to pem format
         StringBuilder privateSB = new ();
@@ -31,5 +31,33 @@ public class RSACipher
 
         // Return result object
         return new (publicSB.ToString (), privateSB.ToString (), keySize);
+    }
+
+    public String Encrypt(String publicKey, String data)
+    {
+        Byte[] resultBytes;
+        using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+        {
+            rsa.ImportFromPem(publicKey.ToCharArray());
+            var dataToEncrypt = Converter.ToByteArray (data, ConvertType.UTF8);
+            resultBytes = rsa.Encrypt (dataToEncrypt, false);
+        }
+
+        String result = Converter.ToString (resultBytes, ConvertType.HEX);
+        return result;
+    }
+
+    public String Decrypt(String privateKey, String data)
+    {
+        Byte[] resultBytes;
+        using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+        {
+            rsa.ImportFromPem(privateKey.ToCharArray());
+            var dataToDecrypt = Converter.ToByteArray (data, ConvertType.HEX);
+            resultBytes = rsa.Decrypt (dataToDecrypt, false);
+        }
+
+        String result = Converter.ToString (resultBytes, ConvertType.ASCII);
+        return result;
     }
 }
