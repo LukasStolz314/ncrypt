@@ -22,7 +22,8 @@ var keys = rsa.GenerateKeyPair (1024);
 var cipherText = rsa.Encrypt (keys.PublicKey, "Hello, World!");
 var plain = rsa.Decrypt (keys.PrivateKey, cipherText);
 
-
+var sign = rsa.Sign (keys.PrivateKey, cipherText, HashAlgorithmName.SHA256);
+var verify = rsa.Verify (keys.PublicKey, cipherText, sign, HashAlgorithmName.SHA256);
 
 
 

@@ -36,7 +36,7 @@ public class RSACipher
     public String Encrypt(String publicKey, String data)
     {
         Byte[] resultBytes;
-        using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+        using (RSACryptoServiceProvider rsa = new ())
         {
             rsa.ImportFromPem(publicKey.ToCharArray());
             var dataToEncrypt = Converter.ToByteArray (data, ConvertType.UTF8);
@@ -50,7 +50,7 @@ public class RSACipher
     public String Decrypt(String privateKey, String data)
     {
         Byte[] resultBytes;
-        using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+        using (RSACryptoServiceProvider rsa = new ())
         {
             rsa.ImportFromPem(privateKey.ToCharArray());
             var dataToDecrypt = Converter.ToByteArray (data, ConvertType.HEX);
@@ -58,6 +58,34 @@ public class RSACipher
         }
 
         String result = Converter.ToString (resultBytes, ConvertType.ASCII);
+        return result;
+    }
+
+    public String Sign(String privateKey, String data, HashAlgorithmName halg)
+    {
+        Byte[] resultBytes;
+        using (RSACryptoServiceProvider rsa = new())
+        {
+            rsa.ImportFromPem (privateKey.ToCharArray ());
+            var dataToSign = Converter.ToByteArray (data, ConvertType.HEX);
+            resultBytes = rsa.SignData (dataToSign, SHA256.Create());
+        }
+
+        String result = Converter.ToString (resultBytes, ConvertType.HEX);
+        return result;
+    }
+
+    public Boolean Verify(String publicKey, String data, String signature, HashAlgorithmName halg)
+    {
+        Boolean result;
+        using (RSACryptoServiceProvider rsa = new())
+        {
+            rsa.ImportFromPem (publicKey.ToCharArray ());
+            var dataToVerify = Converter.ToByteArray (data, ConvertType.HEX);
+            var signatureToVerify = Converter.ToByteArray (signature, ConvertType.HEX);
+            result = rsa.VerifyData (dataToVerify, SHA256.Create (), signatureToVerify);
+        }
+
         return result;
     }
 }
