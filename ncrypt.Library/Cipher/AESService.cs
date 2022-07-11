@@ -3,14 +3,14 @@ using System.Security.Cryptography;
 
 namespace ncrypt.Library.Cipher;
 
-public class AESCipher
+public class AESService
 {
     private Byte[] _key;
     private CipherMode _mode;
     private ConvertType _inputType;
     private ConvertType _outputType;
 
-    public AESCipher(String key, CipherMode mode,
+    public AESService(String key, CipherMode mode,
         ConvertType inputType, ConvertType outputType)
     {
         _key = Converter.ToByteArray (key, inputType);
@@ -19,6 +19,7 @@ public class AESCipher
         _outputType = outputType;
     }
 
+    [SelectableFunction]
     public AESResult Encrypt(String plainText, String iv)
     {
         // Create aes with given parameters
@@ -46,6 +47,7 @@ public class AESCipher
         return new (plainText, result, key, iv, _mode);
     }
 
+    [SelectableFunction]
     public AESResult Decrypt(String cipherText, String iv)
     {
         //Create aes with given parameters

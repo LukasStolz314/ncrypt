@@ -4,8 +4,9 @@ using System.Text;
 
 namespace ncrypt.Library.Cipher;
 
-public class RSACipher
+public class RSAService
 {
+    [SelectableFunction]
     public RSAKeyPairResult GenerateKeyPair(Int32 keySize)
     {
         // Create key pair and export to Base64 String
@@ -33,6 +34,7 @@ public class RSACipher
         return new (publicSB.ToString (), privateSB.ToString (), keySize);
     }
 
+    [SelectableFunction]
     public String Encrypt(String publicKey, String data)
     {
         Byte[] resultBytes;
@@ -47,6 +49,7 @@ public class RSACipher
         return result;
     }
 
+    [SelectableFunction]
     public String Decrypt(String privateKey, String data)
     {
         Byte[] resultBytes;
@@ -61,6 +64,7 @@ public class RSACipher
         return result;
     }
 
+    [SelectableFunction]
     public String Sign(String privateKey, String data, HashAlgorithm halg)
     {
         Byte[] resultBytes;
@@ -75,6 +79,7 @@ public class RSACipher
         return result;
     }
 
+    [SelectableFunction]
     public Boolean Verify(String publicKey, String data, String signature, HashAlgorithm halg)
     {
         Boolean result;
