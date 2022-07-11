@@ -1,9 +1,51 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>ncrypt</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container">
+    <div class="row py-5">
+        <div class="col">
+            <RadzenCard>
+                <RadzenDataList WrapItems="true" AllowPaging="true" Data="@products" TItem="Product" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true">
+                    <Template Context="product">
+                        <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-3 p-3 product-title">
+                                            @(product.ProductName)
+                                    </div>
+                                    <div class="col-lg-7 p-3">
+                                        <div class="row d-flex">
+                                            <div class="col-md-6 col-lg-2">
+                                                <h5 class="mb-0">In Stock</h5>
+                                                <p class="mb-sm-2 mb-lg-0">@(product.UnitsInStock)</p>
+                                            </div>
+                                            <div class="col-md-6 col-lg-2">
+                                                <h5 class="mb-0">Origin</h5>
+                                                <p class="mb-sm-2 mb-lg-0">@(product.Supplier?.Country)</p>
+                                            </div>
+                                            <div class="col-md-6 col-lg-5">
+                                                <h5 class="mb-0">Sold by</h5>
+                                                <p class="mb-sm-2 mb-lg-0">@(product.Supplier?.CompanyName)</p>
+                                            </div>
+                                            <div class="col-md-6 order-first order-lg-last col-lg-3 text-sm-left text-lg-right mb-3 mb-lg-0">
+                                                <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Class="price-badge" Text=@($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", product.UnitPrice)}") />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 p-3">
+                                        <RadzenButton Text="Order now" Class="w-100" />
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataList>
+            </RadzenCard>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code{
+    
+}

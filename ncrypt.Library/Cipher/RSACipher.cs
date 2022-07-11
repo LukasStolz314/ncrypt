@@ -61,29 +61,29 @@ public class RSACipher
         return result;
     }
 
-    public String Sign(String privateKey, String data, HashAlgorithmName halg)
+    public String Sign(String privateKey, String data, HashAlgorithm halg)
     {
         Byte[] resultBytes;
         using (RSACryptoServiceProvider rsa = new())
         {
             rsa.ImportFromPem (privateKey.ToCharArray ());
-            var dataToSign = Converter.ToByteArray (data, ConvertType.HEX);
-            resultBytes = rsa.SignData (dataToSign, SHA256.Create());
+            var dataToSign = Converter.ToByteArray (data, ConvertType.ASCII);
+            resultBytes = rsa.SignData (dataToSign, halg);
         }
 
         String result = Converter.ToString (resultBytes, ConvertType.HEX);
         return result;
     }
 
-    public Boolean Verify(String publicKey, String data, String signature, HashAlgorithmName halg)
+    public Boolean Verify(String publicKey, String data, String signature, HashAlgorithm halg)
     {
         Boolean result;
         using (RSACryptoServiceProvider rsa = new())
         {
             rsa.ImportFromPem (publicKey.ToCharArray ());
-            var dataToVerify = Converter.ToByteArray (data, ConvertType.HEX);
+            var dataToVerify = Converter.ToByteArray (data, ConvertType.ASCII);
             var signatureToVerify = Converter.ToByteArray (signature, ConvertType.HEX);
-            result = rsa.VerifyData (dataToVerify, SHA256.Create (), signatureToVerify);
+            result = rsa.VerifyData (dataToVerify, halg, signatureToVerify);
         }
 
         return result;
