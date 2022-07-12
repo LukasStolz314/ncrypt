@@ -1,0 +1,47 @@
+﻿@using ncrypt.Server.Model
+
+<RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 p-3 product-title">
+                    @(Model.Name)
+            </div>
+            <div class="col-lg-7 p-3">
+                <div class="row d-flex">
+                    <RadzenSelectBar TValue="String">
+                        <Items>
+                            @foreach(var method in Model.ServiceMethods)
+                            {
+                                <RadzenSelectBarItem Text="@method.Name"/>
+                            }                                                   
+                        </Items>
+                    </RadzenSelectBar>
+                </div>
+                <div class="row d-flex">
+                    @foreach(var prop in Model.Properties)
+                    {
+                        <div>
+                            <div class="col-md-6 col-lg-2">
+                                <h5 class="mb-0">@(prop.Name)</h5>
+                                @switch(prop.PropertyType.Name)
+                                {
+                                    case "String": <RadzenTextBox></RadzenTextBox> break;                   
+                                    case "Int32": <RadzenNumeric TValue="int"></RadzenNumeric> break;
+                                    case "CipherMode": <RadzenDropDown TValue="String" Data=Enum.GetNames(prop.PropertyType).ToList()/> break;                                                                
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-2 p-3">
+                <RadzenButton Text="Order now" Class="w-100" />
+            </div>
+        </div>
+    </div>
+</RadzenCard>
+
+@code {
+    [Parameter]
+    public GenericModel Model { get; set; }
+}

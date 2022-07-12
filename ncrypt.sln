@@ -5,9 +5,9 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ncrypt.Server", "ncrypt.Server\ncrypt.Server.csproj", "{DF10F2F9-CCB2-4330-9BA8-CE4240C5C48F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ncrypt.Domain", "ncrypt.Domain\ncrypt.Domain.csproj", "{B6016D46-A5A3-4557-AA3C-CEBE2E02498E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ncrypt.Domain", "ncrypt.Domain\ncrypt.Domain.csproj", "{B6016D46-A5A3-4557-AA3C-CEBE2E02498E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ncrypt.Library", "ncrypt.Library\ncrypt.Library.csproj", "{9577FF5B-8B09-4FA0-87D1-11A2410609E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ncrypt.Library", "ncrypt.Library\ncrypt.Library.csproj", "{9577FF5B-8B09-4FA0-87D1-11A2410609E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

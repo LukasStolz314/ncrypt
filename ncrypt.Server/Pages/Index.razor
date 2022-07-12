@@ -7,54 +7,26 @@
 
 <PageTitle>ncrypt</PageTitle>
 
-<div class="container">
+<div class="container p-0 m-0">
     <div class="row">
-        <div class="col">
-            <RadzenCard>
+        <div class="col-2">
+            <RadzenCard class="p-2">
+                <RadzenDataList WrapItems="true" Data="@models" TItem="GenericModel">
+                    <Template Context="model">
+                        <RadzenCard class="w-100 my-1 m-0 bg-light border-1 border-secondary">
+                            <p style="text-align:center">@model.Name</p>                            
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataList>
+            </RadzenCard>
+        </div>
+        <div class="col-10">
+            <RadzenCard class="w-100">
                 <RadzenDataList WrapItems="true" AllowPaging="false" Data="@models" TItem="GenericModel" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true">
                     <Template Context="model">
-                        <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-lg-3 p-3 product-title">
-                                                @(model.Name)
-                                        </div>
-                                        <div class="col-lg-7 p-3">
-                                            <div class="row d-flex">
-                                                <RadzenSelectBar TValue="String">
-                                                    <Items>
-                                                        @foreach(var method in model.ServiceMethods)
-                                                        {
-                                                            <RadzenSelectBarItem Text="@method.Name"/>
-                                                        }                                                   
-                                                    </Items>
-                                                </RadzenSelectBar>
-                                            </div>
-                                            <div class="row d-flex">
-                                                @foreach(var prop in model.Properties)
-                                                {
-                                                    <div>
-                                                        <div class="col-md-6 col-lg-2">
-                                                            <h5 class="mb-0">@(prop.Name)</h5>
-                                                            @switch(prop.PropertyType.Name)
-                                                            {
-                                                                case "String": <RadzenTextBox></RadzenTextBox> break;                   
-                                                                case "Int32": <RadzenNumeric TValue="int"></RadzenNumeric> break;
-                                                                case "CipherMode": <RadzenDropDown TValue="String" Data=@modes /> break;                                                                
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-2 p-3">
-                                            <RadzenButton Text="Order now" Class="w-100" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </RadzenCard>
-                        </Template>    
-                </RadzenDataList>
+                        <_GenericCard Model="model"></_GenericCard>
+                    </Template>    
+                </RadzenDataList >
             </RadzenCard>
         </div>
     </div>
