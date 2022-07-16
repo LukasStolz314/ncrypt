@@ -1,7 +1,12 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+html {
+    font-family: 'Century Gothic';
+    height: 100%;
+}
 
-html, body {
-    font-family:'Century Gothic';
+body {
+    font-family: 'Century Gothic';
+    max-height: 100%;
 }
 
 h1:focus {

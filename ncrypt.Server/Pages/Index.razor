@@ -9,7 +9,7 @@
 
 <div class="container-fluid h-100">
     <div class="row h-100">
-        <div class="col-6 ps-0 pe-1 pb-1 d-flex">
+        <div class="col-6 ps-0 pe-1 pb-1 d-flex h-100">
             <div class="col-4 pe-1">
                 <RadzenCard class="p-2 h-100">
                     <RadzenDataList WrapItems="true" Data="@models" TItem="GenericModel">
@@ -23,18 +23,21 @@
                     </RadzenDataList>
                 </RadzenCard>
             </div>
-            <div class="col-8">
-                <RadzenCard class="w-100 h-100 p-0">
-                    <div class="row justify-content-center">
+            <div class="col-8 h-100">
+                <RadzenCard class="w-100 p-0 h-100">
+                    <div class="row m-2 justify-content-center">
                         <RadzenButton class="m-1" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="width:60%; border-radius:10px"/>
                     </div>
-                    <div class="row h-100">
+                    <div class="row m-2 h-100" Style="overflow:auto">
                         <DropTarget T="GenericModel" Drop="@OnDrop">
-                            <RadzenDataList WrapItems="true" AllowPaging="false" Data="@sequence" TItem="GenericModel" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true">
-                                <Template Context="model">
-                                    <_GenericCard Model="model"></_GenericCard>
-                                </Template>
-                            </RadzenDataList>
+                            <ul style="list-style:none;padding:0">
+                                @foreach(var model in sequence)
+                                {
+                                    <li>
+                                        <_GenericCard Model="model"></_GenericCard>
+                                    </li>
+                                }
+                            </ul>
                         </DropTarget>
                     </div>
                 </RadzenCard>
