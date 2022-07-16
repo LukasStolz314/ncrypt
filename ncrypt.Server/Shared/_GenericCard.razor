@@ -23,11 +23,17 @@
                         <div>
                             <div class="col-md-6 col-lg-2">
                                 <h5 class="mb-0">@(prop.Name)</h5>
-                                @switch(prop.PropertyType.Name)
+                                @if(prop.PropertyType.IsEnum)
                                 {
-                                    case "String": <RadzenTextBox></RadzenTextBox> break;                   
-                                    case "Int32": <RadzenNumeric TValue="int"></RadzenNumeric> break;
-                                    case "CipherMode": <RadzenDropDown TValue="String" Data=Enum.GetNames(prop.PropertyType).ToList()/> break;                                                                
+                                    <RadzenDropDown TValue="String" Data=Enum.GetNames(prop.PropertyType).ToList()/>
+                                }
+                                else
+                                {
+                                    @switch(prop.PropertyType.Name)
+                                    {
+                                        case "String": <RadzenTextBox></RadzenTextBox> break;
+                                        case "Int32": <RadzenNumeric TValue="int"></RadzenNumeric> break;
+                                    }
                                 }
                             </div>
                         </div>
