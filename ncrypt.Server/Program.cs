@@ -4,6 +4,7 @@ using ncrypt.Library;
 using ncrypt.Library.Cipher;
 using ncrypt.Library.Code;
 using ncrypt.Library.Hash;
+using ncrypt.Server;
 using ncrypt.Server.Data;
 
 var builder = WebApplication.CreateBuilder (args);
@@ -12,6 +13,7 @@ var builder = WebApplication.CreateBuilder (args);
 builder.Services.AddRazorPages ();
 builder.Services.AddServerSideBlazor ();
 builder.Services.AddSingleton<WeatherForecastService> ();
+builder.Services.AddSingleton<DragAndDropService>();
 
 var app = builder.Build ();
 

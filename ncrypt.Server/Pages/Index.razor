@@ -7,52 +7,72 @@
 
 <PageTitle>ncrypt</PageTitle>
 
-<div class="container p-0 m-0">
-    <div class="row">
-        <div class="col-2">
-            <RadzenCard class="p-2">
-                <RadzenDataList WrapItems="true" Data="@models" TItem="GenericModel">
-                    <Template Context="model">
-                        <RadzenCard class="w-100 my-1 m-0 bg-light border-1 border-secondary">
-                            <p style="text-align:center">@model.Name</p>                            
-                        </RadzenCard>
-                    </Template>
-                </RadzenDataList>
-            </RadzenCard>
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <div class="col-6 ps-0 pe-1 pb-1 d-flex h-100">
+            <div class="col-4 pe-1">
+                <RadzenCard class="p-2 h-100">
+                    <RadzenDataList WrapItems="true" Data="@models" TItem="GenericModel">
+                        <Template Context="model">
+                            <Draggable Data="@model">
+                                <RadzenCard class="my-1 m-0 px-4 py-1 plain-card">
+                                    <p style="text-align:center;font-size:20px; font-family:'Century Gothic'">@model.Name</p>
+                                </RadzenCard>
+                            </Draggable>
+                        </Template>
+                    </RadzenDataList>
+                </RadzenCard>
+            </div>
+            <div class="col-8 h-100">
+                <RadzenCard class="w-100 p-0 h-100">
+                    <div class="row m-2 justify-content-center">
+                        <RadzenButton class="m-1" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="width:60%; border-radius:10px"/>
+                    </div>
+                    <div class="row m-2 h-100" Style="overflow:auto">
+                        <DropTarget T="GenericModel" Drop="@OnDrop">
+                            <ul style="list-style:none;padding:0">
+                                @foreach(var model in sequence)
+                                {
+                                    <li class="mb-1">
+                                        <_GenericCard Model="model"></_GenericCard>
+                                    </li>
+                                }
+                            </ul>
+                        </DropTarget>
+                    </div>
+                </RadzenCard>
+            </div>
         </div>
-        <div class="col-10">
-            <RadzenCard class="w-100">
-                <RadzenDataList WrapItems="true" AllowPaging="false" Data="@models" TItem="GenericModel" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true">
-                    <Template Context="model">
-                        <_GenericCard Model="model"></_GenericCard>
-                    </Template>    
-                </RadzenDataList >
-            </RadzenCard>
+        <div class="col-6">
+            <div class="row h-50 pb-1">
+                <RadzenTextArea Placeholder="Enter here..." Class="w-100 p-2" Style="resize:none; line-height:1.1" @oninput=@OnChange />
+            </div>
+            <div class="row h-50 pb-1">
+                <RadzenTextArea Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Input />
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-.product-title {
-    min-height: 72px;
-    color: #da0074;
-    background-color: rgba(255, 41, 155, .1);
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 20px;
-    letter-spacing: -0.02em;
-}
-.price-badge {
-    font-size: 16px;
-    font-weight: bold;
-    line-height: 20px;
-    padding: 8px;
-}
+    .plain-card {
+        background-color: #C4DDFF;
+        border: solid 1px #C4DDFF;
+        border-radius:10px;
+        width:100%;
+    }
+
+    .plain-card:hover{
+        box-shadow: 0.7px 0.7px #7FB5FF;
+        border: solid 1px #001D6E;
+    }
 </style>
 
 @code {
+    String Input { get; set; } = String.Empty;
     List<GenericModel> models = new ();
-    List<String> modes = Enum.GetNames(typeof(CipherMode)).ToList();
+    List<GenericModel> sequence = new ();
+    List<String> modes = Enum.GetNames (typeof (CipherMode)).ToList ();
 
     protected override void OnInitialized ()
     {
@@ -60,6 +80,15 @@
         {
             new ("AES", typeof (AESResult), typeof(AESService)),
             new ("RSA", typeof (RSAKeyPairResult), typeof(RSAService)),
-        };        
+        };
     }
+
+    void OnDrop (GenericModel model)
+    {
+        sequence.Add (model);
+        StateHasChanged ();
+    }
+
+    void OnChange (ChangeEventArgs args) => Input = (String) (args.Value ?? "");
+    void OnDeleteClick () => sequence.Clear ();
 }

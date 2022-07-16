@@ -1,0 +1,30 @@
+﻿<!-- Based on: https://www.radzen.com/blog/blazor-drag-and-drop/ -->
+
+@inject DragAndDropService DragAndDropService
+@typeparam T
+
+<div ondragover="event.preventDefault()" @ondrop="@OnDrop" style="@Style">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public String Zone { get; set; } = String.Empty;
+
+    [Parameter]
+    public Action<T>? Drop { get; set; }
+
+    [Parameter]
+    public String? Style { get; set; }
+
+    void OnDrop()
+    {
+        if (Drop != null && DragAndDropService.Accepts(Zone ?? ""))
+        {
+            Drop((T)DragAndDropService.Data);
+        }
+    }
+}
