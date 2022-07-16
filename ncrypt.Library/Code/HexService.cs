@@ -2,14 +2,17 @@
 
 namespace ncrypt.Library.Code;
 
-public class HexCode
+[SelectableService]
+public class HexService
 {
+    [SelectableFunction]
     public String Encode(String plainText)
     {
         var bytes = Encoding.ASCII.GetBytes (plainText);
         return Convert.ToHexString (bytes);
     }
 
+    [SelectableFunction]
     public String Decode(String encodedText)
     {
         var bytes = Convert.FromHexString (encodedText);

@@ -11,7 +11,8 @@ public enum HashType
     SHA512,
 }
 
-public class SHAHash
+[SelectableService]
+public class SHAService
 {
     public static HashAlgorithm GetHashInstance (HashType type) => type switch
     {
@@ -23,6 +24,7 @@ public class SHAHash
         _ => throw new NotImplementedException (),
     };
 
+    [SelectableFunction]
     public String Hash(String data, HashType type)
     {
         Byte[] resultBytes;

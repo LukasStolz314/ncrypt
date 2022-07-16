@@ -5,23 +5,9 @@ namespace ncrypt.Server.Model;
 
 public class GenericModel
 {
-    public String Name{ get; set; }
-    public Type ModelResultType { get; set; }
+    public String Name { get; set; }
     public Type ServiceType { get; set; }
-
-    private List<PropertyInfo>? _properties;
-    public List<PropertyInfo> Properties
-    {
-        get 
-        {
-            if (_properties is null || _properties.Count == 0)
-            {
-                _properties = ModelResultType.GetProperties().ToList();
-            }
-
-            return _properties;
-        }
-    }
+    public String SelectedMethod { get; set; } = "";
 
     private List<MethodInfo>? _serviceMethods;
     public List<MethodInfo> ServiceMethods
@@ -39,12 +25,16 @@ public class GenericModel
             return _serviceMethods;
         }
     }
-        
-        
-    public GenericModel (String name, Type resultType, Type serviceType)
+
+    public GenericModel (Type service, String? name = null)
     {
-        Name = name;
-        ModelResultType = resultType;
-        ServiceType = serviceType;
+        Name = name ?? service.Name.Replace("Service", "");
+        ServiceType = service;
     }
+
+    public List<String> ServiceMethodNames 
+        => ServiceMethods.Select (x => x.Name).ToList (); 
+
+    public ParameterInfo[] GetParametersOfMethod (String method)
+        => ServiceMethods.First (x => x.Name.Equals (method)).GetParameters (); 
 }

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 
 namespace ncrypt.Library.Cipher;
 
+[SelectableService]
 public class AESService
 {
     private Byte[] _key;
@@ -20,7 +21,7 @@ public class AESService
     }
 
     [SelectableFunction]
-    public AESResult Encrypt(String plainText, String iv)
+    public AESResult Encrypt(String plainText, String iv, CipherMode mode)
     {
         // Create aes with given parameters
         Aes aes = CreateAes (iv);

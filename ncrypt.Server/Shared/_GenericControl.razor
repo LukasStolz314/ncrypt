@@ -1,0 +1,27 @@
+﻿@using System.Reflection
+
+@if (InfoType.IsEnum)
+{
+    <RadzenDropDown Placeholder=@Enum.GetNames(InfoType).First() class="@Class" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
+}
+else
+{
+    @switch (InfoType.Name)
+    {
+        case "String":
+            <RadzenTextArea Placeholder="Enter here..." class="@Class"></RadzenTextArea>
+            break;
+        case "Int32":
+            <RadzenNumeric Placeholder="0" ShowUpDown=false class="@Class" TValue="int"></RadzenNumeric>
+            break;
+    }
+}
+
+@code{
+    [Parameter]
+    public ParameterInfo? Info { get; set; }
+    [Parameter]
+    public String? Class { get; set; }
+
+    public Type InfoType => Info.ParameterType;
+}

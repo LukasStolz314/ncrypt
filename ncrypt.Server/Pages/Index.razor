@@ -2,6 +2,7 @@
 @using System.Security.Cryptography
 @using System.Reflection
 @using ncrypt.Domain
+@using ncrypt.Library
 @using ncrypt.Library.Cipher
 @using ncrypt.Server.Model
 
@@ -12,11 +13,11 @@
         <div class="col-6 ps-0 pe-1 pb-1 d-flex h-100">
             <div class="col-4 pe-1">
                 <RadzenCard class="p-2 h-100">
-                    <RadzenDataList WrapItems="true" Data="@models" TItem="GenericModel">
+                    <RadzenDataList WrapItems="true" Data="@models" TItem="Type">
                         <Template Context="model">
                             <Draggable Data="@model">
                                 <RadzenCard class="my-1 m-0 px-4 py-1 plain-card">
-                                    <p style="text-align:center;font-size:20px; font-family:'Century Gothic'">@model.Name</p>
+                                    <p style="text-align:center;font-size:20px; font-family:'Century Gothic'">@(model.Name.Replace ("Service", ""))</p>
                                 </RadzenCard>
                             </Draggable>
                         </Template>
@@ -29,7 +30,7 @@
                         <RadzenButton class="m-1" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="width:60%; border-radius:10px"/>
                     </div>
                     <div class="row m-2 h-100" Style="overflow:auto">
-                        <DropTarget T="GenericModel" Drop="@OnDrop">
+                        <DropTarget T="Type" Drop="@OnDrop">
                             <ul style="list-style:none;padding:0">
                                 @foreach(var model in sequence)
                                 {
@@ -70,23 +71,22 @@
 
 @code {
     String Input { get; set; } = String.Empty;
-    List<GenericModel> models = new ();
+    List<Type> models = new ();
     List<GenericModel> sequence = new ();
     List<String> modes = Enum.GetNames (typeof (CipherMode)).ToList ();
 
     protected override void OnInitialized ()
     {
-        models = new ()
-        {
-            new ("AES", typeof (AESResult), typeof(AESService)),
-            new ("RSA", typeof (RSAKeyPairResult), typeof(RSAService)),
-        };
+        Assembly lib = Assembly.Load("ncrypt.Library");
+        models = lib.GetTypes ()
+            .Where (t => t.CustomAttributes
+                .Any (a => a.AttributeType == typeof (SelectableService))
+            ).ToList();
     }
 
-    void OnDrop (GenericModel model)
+    void OnDrop (Type type)
     {
-        sequence.Add (model);
-        StateHasChanged ();
+        sequence.Add (new(type));
     }
 
     void OnChange (ChangeEventArgs args) => Input = (String) (args.Value ?? "");

@@ -1,9 +1,11 @@
 ﻿using ncrypt.Domain;
+using ncrypt.Library.Hash;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace ncrypt.Library.Cipher;
 
+[SelectableService]
 public class RSAService
 {
     [SelectableFunction]
@@ -65,14 +67,14 @@ public class RSAService
     }
 
     [SelectableFunction]
-    public String Sign(String privateKey, String data, HashAlgorithm halg)
+    public String Sign(String privateKey, String data, HashType halg)
     {
         Byte[] resultBytes;
         using (RSACryptoServiceProvider rsa = new())
         {
             rsa.ImportFromPem (privateKey.ToCharArray ());
             var dataToSign = Converter.ToByteArray (data, ConvertType.ASCII);
-            resultBytes = rsa.SignData (dataToSign, halg);
+            resultBytes = rsa.SignData (dataToSign, SHAService.GetHashInstance(halg));
         }
 
         String result = Converter.ToString (resultBytes, ConvertType.HEX);
@@ -80,7 +82,7 @@ public class RSAService
     }
 
     [SelectableFunction]
-    public Boolean Verify(String publicKey, String data, String signature, HashAlgorithm halg)
+    public Boolean Verify(String publicKey, String data, String signature, HashType halg)
     {
         Boolean result;
         using (RSACryptoServiceProvider rsa = new())
@@ -88,7 +90,7 @@ public class RSAService
             rsa.ImportFromPem (publicKey.ToCharArray ());
             var dataToVerify = Converter.ToByteArray (data, ConvertType.ASCII);
             var signatureToVerify = Converter.ToByteArray (signature, ConvertType.HEX);
-            result = rsa.VerifyData (dataToVerify, halg, signatureToVerify);
+            result = rsa.VerifyData (dataToVerify, SHAService.GetHashInstance(halg), signatureToVerify);
         }
 
         return result;

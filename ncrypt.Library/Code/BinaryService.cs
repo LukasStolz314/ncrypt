@@ -2,8 +2,10 @@
 
 namespace ncrypt.Library.Code;
 
-public class BinaryCode
+[SelectableService]
+public class BinaryService
 {
+    [SelectableFunction]
     public String Encode(String data)
     {
         StringBuilder sb = new ();
@@ -14,7 +16,7 @@ public class BinaryCode
         return sb.ToString();
     }
 
-
+    [SelectableFunction]
     public String Decode(String data)
     {
         List<Byte> bytes = new ();

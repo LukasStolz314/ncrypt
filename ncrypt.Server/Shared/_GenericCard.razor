@@ -1,44 +1,26 @@
-﻿@using ncrypt.Server.Model
+﻿@using System.Reflection
+@using ncrypt.Server.Model
 
 <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3 p-3 product-title">
-                    @(Model.Name)
+    <div class="container p-0">
+        <div class="row g-0 p-3">
+            <div class="row d-flex justify-content-around align-items-center">
+                <div class="col-3">
+                    <p style="font-size:30px; text-align:center">@Model.Name</p>
+                </div>
+                <div class="col-9 d-flex justify-content-around align-items-center">
+                    <RadzenSelectBar TValue="String" @bind-Value=@Model.SelectedMethod Data=@Model.ServiceMethodNames />
+                </div>
             </div>
-            <div class="col-lg-7 p-3">
-                <div class="row d-flex">
-                    <RadzenSelectBar TValue="String">
-                        <Items>
-                            @foreach(var method in Model.ServiceMethods)
-                            {
-                                <RadzenSelectBarItem Text="@method.Name"/>
-                            }                                                   
-                        </Items>
-                    </RadzenSelectBar>
-                </div>
-                <div class="row d-flex">
-                    @foreach(var prop in Model.Properties)
-                    {
-                        <div>
-                            <div class="col-md-6 col-lg-2">
-                                <h5 class="mb-0">@(prop.Name)</h5>
-                                @if(prop.PropertyType.IsEnum)
-                                {
-                                    <RadzenDropDown TValue="String" Data=Enum.GetNames(prop.PropertyType).ToList()/>
-                                }
-                                else
-                                {
-                                    @switch(prop.PropertyType.Name)
-                                    {
-                                        case "String": <RadzenTextBox></RadzenTextBox> break;
-                                        case "Int32": <RadzenNumeric TValue="int"></RadzenNumeric> break;
-                                    }
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
+            <hr class="my-2" />
+            <div class="row">
+                @foreach (var prop in Model.GetParametersOfMethod (Model.SelectedMethod))
+                {
+                    <div class="d-flex justify-content-start align-items-center mb-1">
+                        <h5 class="mb-0 w-25">@(prop.Name):</h5>
+                        <_GenericControl Class="w-75" Info=@prop></_GenericControl>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -47,4 +29,10 @@
 @code {
     [Parameter]
     public GenericModel Model { get; set; }
+
+    protected override void OnInitialized ()
+    {
+        base.OnInitialized ();
+        Model.SelectedMethod = Model.ServiceMethods.First ().Name;
+    }
 }
