@@ -6,16 +6,16 @@ namespace ncrypt.Library.Code;
 public class Base64Service
 {
     [SelectableFunction]
-    public String Encode(String plainText)
+    public String Encode(String input)
     {
-        var bytes = Encoding.ASCII.GetBytes (plainText);
+        var bytes = Encoding.ASCII.GetBytes (input);
         return Convert.ToBase64String (bytes);
     }
 
     [SelectableFunction]
-    public String Decode(String encodedText)
+    public String Decode(String input)
     {
-        var bytes = Convert.FromBase64String (encodedText);
+        var bytes = Convert.FromBase64String (input);
         return Encoding.ASCII.GetString (bytes);
     }
 }

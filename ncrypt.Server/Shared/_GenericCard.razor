@@ -11,17 +11,33 @@
                 <div class="col-9 d-flex justify-content-around align-items-center">
                     <RadzenSelectBar TValue="String" @bind-Value=@Model.SelectedMethod Data=@Model.ServiceMethodNames />
                 </div>
-            </div>
-            <hr class="my-2" />
-            <div class="row">
-                @foreach (var prop in Model.GetParametersOfMethod (Model.SelectedMethod))
-                {
-                    <div class="d-flex justify-content-start align-items-center mb-1">
-                        <h5 class="mb-0 w-25">@(prop.Name):</h5>
-                        <_GenericControl Class="w-75" Info=@prop></_GenericControl>
-                    </div>
-                }
-            </div>
+            </div>            
+            @if (Model.ConstructorParameters.Count () > 0)
+            {
+                <hr class="my-2" />
+                <div class="row">
+                    @foreach (var prop in Model.ConstructorParameters)
+                    {
+                        <div class="d-flex justify-content-start align-items-center mb-1">
+                            <h5 class="mb-0 w-25">@(prop.Name):</h5>
+                            <_GenericControl Class="w-75" OnChange="OnChange" Info=@prop></_GenericControl>
+                        </div>
+                    }
+                </div>                
+            }
+            @if (Model.GetParametersOfMethod (Model.SelectedMethod).Count () > 0)
+            {
+                <hr class="my-2" />
+                <div class="row">
+                    @foreach (var prop in Model.GetParametersOfMethod (Model.SelectedMethod))
+                    {
+                        <div class="d-flex justify-content-start align-items-center mb-1">
+                            <h5 class="mb-0 w-25">@(prop.Name):</h5>
+                            <_GenericControl Class="w-75" OnChange="OnChange" Info=@prop></_GenericControl>
+                        </div>
+                    }
+                </div>
+            }
         </div>
     </div>
 </RadzenCard>
@@ -29,6 +45,11 @@
 @code {
     [Parameter]
     public GenericModel Model { get; set; }
+
+    protected void OnChange ((String, Object) pair)
+    {
+        Model.UpdateResult (pair.Item1, pair.Item2);
+    }
 
     protected override void OnInitialized ()
     {

@@ -9,6 +9,16 @@ public class GenericModel
     public Type ServiceType { get; set; }
     public String SelectedMethod { get; set; } = "";
 
+    public Dictionary<String, Object> Result { get; } = new ();
+
+    public void UpdateResult(String key, Object value)
+    {
+        if(Result.ContainsKey(key))
+            Result[key] = value;
+        else
+            Result.Add(key, value);
+    }
+
     private List<MethodInfo>? _serviceMethods;
     public List<MethodInfo> ServiceMethods
     {
@@ -24,7 +34,7 @@ public class GenericModel
 
             return _serviceMethods;
         }
-    }
+    }    
 
     public GenericModel (Type service, String? name = null)
     {
@@ -33,8 +43,20 @@ public class GenericModel
     }
 
     public List<String> ServiceMethodNames 
-        => ServiceMethods.Select (x => x.Name).ToList (); 
+        => ServiceMethods.Select (x => x.Name).ToList ();
+
+    public ParameterInfo[] ConstructorParameters 
+        => ServiceType.GetConstructors ().First ().GetParameters ();
 
     public ParameterInfo[] GetParametersOfMethod (String method)
-        => ServiceMethods.First (x => x.Name.Equals (method)).GetParameters (); 
+    {
+        var parameters = ServiceMethods
+            .First (x => x.Name.Equals (method))
+            .GetParameters ()
+            .ToList();
+
+        parameters.RemoveAll(x => x.Name.Equals ("input"));       
+
+        return parameters.ToArray();
+    }        
 }

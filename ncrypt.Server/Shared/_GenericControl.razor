@@ -2,26 +2,42 @@
 
 @if (InfoType.IsEnum)
 {
-    <RadzenDropDown Placeholder=@Enum.GetNames(InfoType).First() class="@Class" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
+    <RadzenDropDown Change=@(args => DropDownUpdated(args)) Placeholder="Please pick" class="@Class" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
 }
 else
 {
     @switch (InfoType.Name)
     {
         case "String":
-            <RadzenTextArea Placeholder="Enter here..." class="@Class"></RadzenTextArea>
+            <RadzenTextArea @oninput=@ValueUpdated Placeholder="Enter here..." class="@Class"></RadzenTextArea>
             break;
         case "Int32":
-            <RadzenNumeric Placeholder="0" ShowUpDown=false class="@Class" TValue="int"></RadzenNumeric>
+            <RadzenNumeric @oninput=@ValueUpdated Placeholder="0" ShowUpDown=false class="@Class" TValue="int"></RadzenNumeric>
             break;
     }
 }
-
+ 
 @code{
     [Parameter]
     public ParameterInfo? Info { get; set; }
+
     [Parameter]
     public String? Class { get; set; }
+
+    [Parameter]
+    public EventCallback<(String, Object)> OnChange { get; set; }
+
+    private async Task<Object> ValueUpdated(ChangeEventArgs e)
+    {
+        await OnChange.InvokeAsync ((Info.Name, Convert.ChangeType(e.Value, InfoType)));
+        return e;
+    }
+
+    private async Task<Object> DropDownUpdated(Object value)
+    {
+        await OnChange.InvokeAsync ((Info.Name, Enum.Parse(InfoType, (String)value)));
+        return value;
+    }
 
     public Type InfoType => Info.ParameterType;
 }

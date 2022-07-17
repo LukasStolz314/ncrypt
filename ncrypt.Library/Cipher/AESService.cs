@@ -21,7 +21,7 @@ public class AESService
     }
 
     [SelectableFunction]
-    public AESResult Encrypt(String plainText, String iv, CipherMode mode)
+    public String Encrypt(String input, String iv)
     {
         // Create aes with given parameters
         Aes aes = CreateAes (iv);
@@ -35,7 +35,7 @@ public class AESService
             {
                 using (StreamWriter sw = new (cs))
                 {
-                    sw.Write(plainText);
+                    sw.Write(input);
                 }
             }
 
@@ -44,12 +44,11 @@ public class AESService
 
         // Return result object
         String result = Converter.ToString (resultBytes, _outputType);
-        String key = Converter.ToString (_key, _inputType);
-        return new (plainText, result, key, iv, _mode);
+        return result;
     }
 
     [SelectableFunction]
-    public AESResult Decrypt(String cipherText, String iv)
+    public String Decrypt(String input, String iv)
     {
         //Create aes with given parameters
         Aes aes = CreateAes (iv);
@@ -57,7 +56,7 @@ public class AESService
 
         // Decrypt cipher text with generated decryptor
         String result;
-        using (MemoryStream ms = new (Converter.ToByteArray (cipherText, _inputType)))
+        using (MemoryStream ms = new (Converter.ToByteArray (input, _inputType)))
         {
             using (CryptoStream cs = new (ms, decryptor, CryptoStreamMode.Read))
             {
@@ -68,9 +67,7 @@ public class AESService
             }
         }
 
-        // Return result object
-        String key = Converter.ToString (_key, _inputType);
-        return new (result, cipherText, key, iv, _mode);
+        return result;
     }
 
     private Aes CreateAes(String iv)

@@ -4,6 +4,7 @@
 @using ncrypt.Domain
 @using ncrypt.Library
 @using ncrypt.Library.Cipher
+@using ncrypt.Library.Hash
 @using ncrypt.Server.Model
 
 <PageTitle>ncrypt</PageTitle>
@@ -27,12 +28,12 @@
             <div class="col-8 h-100">
                 <RadzenCard class="w-100 p-0 h-100">
                     <div class="row m-2 justify-content-center">
-                        <RadzenButton class="m-1" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="width:60%; border-radius:10px"/>
+                        <RadzenButton class="m-1" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="width:60%; border-radius:10px" />
                     </div>
                     <div class="row m-2 h-100" Style="overflow:auto">
                         <DropTarget T="Type" Drop="@OnDrop">
                             <ul style="list-style:none;padding:0">
-                                @foreach(var model in sequence)
+                                @foreach (var model in sequence)
                                 {
                                     <li class="mb-1">
                                         <_GenericCard Model="model"></_GenericCard>
@@ -41,15 +42,18 @@
                             </ul>
                         </DropTarget>
                     </div>
+                    <div class="row m-2 justify-content-center">
+                        <RadzenButton class="m-1" Click=@OnDo Text="DO" Icon="check" ButtonStyle="ButtonStyle.Success" Style="width:60%; border-radius:10px" />
+                    </div>
                 </RadzenCard>
             </div>
         </div>
         <div class="col-6">
             <div class="row h-50 pb-1">
-                <RadzenTextArea Placeholder="Enter here..." Class="w-100 p-2" Style="resize:none; line-height:1.1" @oninput=@OnChange />
+                <RadzenTextArea Placeholder="Enter here..." Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Input />
             </div>
             <div class="row h-50 pb-1">
-                <RadzenTextArea Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Input />
+                <RadzenTextArea Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Output />
             </div>
         </div>
     </div>
@@ -59,36 +63,71 @@
     .plain-card {
         background-color: #C4DDFF;
         border: solid 1px #C4DDFF;
-        border-radius:10px;
-        width:100%;
+        border-radius: 10px;
+        width: 100%;
     }
 
-    .plain-card:hover{
-        box-shadow: 0.7px 0.7px #7FB5FF;
-        border: solid 1px #001D6E;
-    }
+        .plain-card:hover {
+            box-shadow: 0.7px 0.7px #7FB5FF;
+            border: solid 1px #001D6E;
+        }
 </style>
 
 @code {
     String Input { get; set; } = String.Empty;
+    String Output { get; set; } = String.Empty;
+
     List<Type> models = new ();
     List<GenericModel> sequence = new ();
-    List<String> modes = Enum.GetNames (typeof (CipherMode)).ToList ();
 
     protected override void OnInitialized ()
     {
-        Assembly lib = Assembly.Load("ncrypt.Library");
+        Assembly lib = Assembly.Load ("ncrypt.Library");
         models = lib.GetTypes ()
             .Where (t => t.CustomAttributes
                 .Any (a => a.AttributeType == typeof (SelectableService))
-            ).ToList();
+            ).ToList ();
     }
 
     void OnDrop (Type type)
     {
-        sequence.Add (new(type));
+        sequence.Add (new (type));
     }
 
-    void OnChange (ChangeEventArgs args) => Input = (String) (args.Value ?? "");
-    void OnDeleteClick () => sequence.Clear ();
+    void OnDeleteClick ()
+    {
+        sequence.Clear ();
+        Input = String.Empty;
+        Output = String.Empty;
+    }
+
+    void OnDo ()
+    {
+        String result = Input;
+        foreach (var model in sequence)
+        {
+            Type serviceType = model.ServiceType;
+            MethodInfo? method = serviceType.GetMethod (model.SelectedMethod);
+            List<Object> methodParams = new();
+            foreach(var parameter in method.GetParameters())
+            {
+                if (parameter.Name.Equals ("input"))
+                    methodParams.Add (result);
+                else
+                    methodParams.Add (model.Result[parameter.Name]);
+            }
+
+            List<Object> constructorParams = new();
+            foreach (var parameter in serviceType.GetConstructors ().First ().GetParameters ())
+                constructorParams.Add (model.Result[parameter.Name!]);
+
+            Type ty = constructorParams[1].GetType ();
+
+            var instance = Activator.CreateInstance (serviceType, constructorParams.ToArray ());
+
+            result = (String) method.Invoke (instance, methodParams.ToArray())!;
+        }
+
+        Output = result;
+    }
 }
