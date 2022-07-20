@@ -6,16 +6,16 @@ namespace ncrypt.Library.Code;
 public class HexService
 {
     [SelectableFunction]
-    public String Encode(String plainText)
+    public String Encode(Byte[] input)
     {
-        var bytes = Encoding.ASCII.GetBytes (plainText);
-        return Convert.ToHexString (bytes);
+        return Convert.ToHexString (input);
     }
 
     [SelectableFunction]
-    public String Decode(String encodedText)
+    public String Decode(Byte[] input)
     {
-        var bytes = Convert.FromHexString (encodedText);
-        return Encoding.ASCII.GetString (bytes);
+        var value = Encoding.UTF8.GetString (input);
+        var result = Convert.FromHexString (value);
+        return Encoding.UTF8.GetString (result);
     }
 }

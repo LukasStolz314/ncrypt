@@ -9,7 +9,7 @@ namespace ncrypt.Library.Cipher;
 public class RSAService
 {
     [SelectableFunction]
-    public RSAKeyPairResult GenerateKeyPair(Int32 keySize)
+    public String GenerateKeyPair(Int32 keySize)
     {
         // Create key pair and export to Base64 String
         String privateKey;
@@ -33,7 +33,12 @@ public class RSAService
         privateSB.AppendLine ("-----END RSA PRIVATE KEY-----");
 
         // Return result object
-        return new (publicSB.ToString (), privateSB.ToString (), keySize);
+        StringBuilder result = new ();
+        result.AppendLine (publicSB.ToString ());
+        result.AppendLine ("");
+        result.AppendLine (privateSB.ToString ());
+
+        return result.ToString();
     }
 
     [SelectableFunction]
@@ -43,12 +48,11 @@ public class RSAService
         using (RSACryptoServiceProvider rsa = new ())
         {
             rsa.ImportFromPem(publicKey.ToCharArray());
-            var dataToEncrypt = Converter.ToByteArray (data, ConvertType.UTF8);
+            var dataToEncrypt = Converter.ToByteArray (data, ConvertType.ASCII);
             resultBytes = rsa.Encrypt (dataToEncrypt, false);
         }
 
-        String result = Converter.ToString (resultBytes, ConvertType.HEX);
-        return result;
+        return Converter.ToString(resultBytes, ConvertType.HEX);
     }
 
     [SelectableFunction]
@@ -62,8 +66,7 @@ public class RSAService
             resultBytes = rsa.Decrypt (dataToDecrypt, false);
         }
 
-        String result = Converter.ToString (resultBytes, ConvertType.ASCII);
-        return result;
+        return Converter.ToString(resultBytes, ConvertType.ASCII);
     }
 
     [SelectableFunction]

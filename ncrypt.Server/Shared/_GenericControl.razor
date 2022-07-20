@@ -1,23 +1,36 @@
 ﻿@using System.Reflection
+@using NL = ncrypt.Library
 
-@if (InfoType.IsEnum)
-{
-    <RadzenDropDown Change=@(args => DropDownUpdated(args)) Placeholder="Please pick" class="@Class" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
-}
-else
-{
-    @switch (InfoType.Name)
+<div class="@Class d-flex align-items-center">
+    <div class="w-75">
+        @if (InfoType.IsEnum)
+        {
+            <RadzenDropDown Style="width:90% !important" Change=@(args => DropDownUpdated(args)) Placeholder="Please pick" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
+        }
+        else
+        {
+            @switch (InfoType.Name)
+            {
+                // String input
+                case "String":
+                case "Byte[]":
+                    <RadzenTextArea Style="width:90% !important" @oninput=@ValueUpdated Placeholder="Enter here..." class="@Class"></RadzenTextArea>
+                    break;
+                case "Int32":
+                    <RadzenNumeric Style="width:90% !important" @oninput=@ValueUpdated Placeholder="0" ShowUpDown=false class="@Class" TValue="int"></RadzenNumeric>
+                    break;
+            }
+        }
+    </div>
+    @if (InfoType.Name.Equals ("Byte[]") || InfoType.Name.Equals ("String"))
     {
-        case "String":
-            <RadzenTextArea @oninput=@ValueUpdated Placeholder="Enter here..." class="@Class"></RadzenTextArea>
-            break;
-        case "Int32":
-            <RadzenNumeric @oninput=@ValueUpdated Placeholder="0" ShowUpDown=false class="@Class" TValue="int"></RadzenNumeric>
-            break;
+        <div class="w-25">
+            <RadzenDropDown TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@SelectedConvertType />
+        </div>
     }
-}
- 
-@code{
+</div>
+
+@code {
     [Parameter]
     public ParameterInfo? Info { get; set; }
 
@@ -25,19 +38,45 @@ else
     public String? Class { get; set; }
 
     [Parameter]
-    public EventCallback<(String, Object)> OnChange { get; set; }
+    public EventCallback<(String, Object)> OnValueChange { get; set; }
 
-    private async Task<Object> ValueUpdated(ChangeEventArgs e)
+    [Parameter]
+    public EventCallback<(String, NL.ConvertType)> OnConvertTypeChange { get; set; }
+
+    private NL.ConvertType _selectedConvertType;
+    private NL.ConvertType SelectedConvertType
     {
-        await OnChange.InvokeAsync ((Info.Name, Convert.ChangeType(e.Value, InfoType)));
+
+        get
+        {
+            return _selectedConvertType;
+        }
+        set
+        {
+            _selectedConvertType = value;
+            OnConvertTypeChange.InvokeAsync ((Info!.Name!, value));
+        }
+    }
+
+    private async Task<Object> ValueUpdated (ChangeEventArgs e)
+    {
+        var value = e.Value;
+        if (InfoType == typeof (Byte[]))
+            value = Convert.ChangeType (e.Value, typeof(String));
+        else
+            value = Convert.ChangeType (e.Value, InfoType);
+
+        await OnValueChange.InvokeAsync ((Info!.Name!, value ?? ""));
+
         return e;
     }
 
-    private async Task<Object> DropDownUpdated(Object value)
+    private async Task<Object> DropDownUpdated (Object value)
     {
-        await OnChange.InvokeAsync ((Info.Name, Enum.Parse(InfoType, (String)value)));
+        await OnValueChange.InvokeAsync ((Info!.Name!, Enum.Parse (InfoType, (String) value)));
+
         return value;
     }
 
-    public Type InfoType => Info.ParameterType;
+    public Type InfoType => Info!.ParameterType;
 }

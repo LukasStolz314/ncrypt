@@ -1,5 +1,6 @@
 ﻿@using System.Reflection
 @using ncrypt.Server.Model
+@using NL = ncrypt.Library
 
 <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
     <div class="container p-0">
@@ -11,7 +12,20 @@
                 <div class="col-9 d-flex justify-content-around align-items-center">
                     <RadzenSelectBar TValue="String" @bind-Value=@Model.SelectedMethod Data=@Model.ServiceMethodNames />
                 </div>
-            </div>            
+            </div>
+            <hr class="my-2" />
+            <div class="row">
+                <div class="d-flex justify-content-start align-items-center my-1">
+                    <div class="col-6 d-flex justify-content-center align-items-center">
+                        <h5 class="mb-0 me-1">Input:</h5>
+                        <RadzenDropDown TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@Model.InputConvertType />
+                    </div>
+                    <div class="col-6 d-flex justify-content-center align-items-center">
+                        <h5 class="mb-0 me-1">Output:</h5>
+                        <RadzenDropDown TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@Model.OutputConvertType />
+                    </div>                    
+                </div>
+            </div>
             @if (Model.ConstructorParameters.Count () > 0)
             {
                 <hr class="my-2" />
@@ -20,10 +34,10 @@
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
                             <h5 class="mb-0 w-25">@(prop.Name):</h5>
-                            <_GenericControl Class="w-75" OnChange="OnChange" Info=@prop></_GenericControl>
+                            <_GenericControl Class="w-75" OnValueChange="OnValueChange" OnConvertTypeChange="OnConvertTypeChange" Info=@prop></_GenericControl>
                         </div>
                     }
-                </div>                
+                </div>
             }
             @if (Model.GetParametersOfMethod (Model.SelectedMethod).Count () > 0)
             {
@@ -33,11 +47,11 @@
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
                             <h5 class="mb-0 w-25">@(prop.Name):</h5>
-                            <_GenericControl Class="w-75" OnChange="OnChange" Info=@prop></_GenericControl>
+                            <_GenericControl Class="w-75" OnValueChange="OnValueChange" OnConvertTypeChange="OnConvertTypeChange" Info=@prop></_GenericControl>
                         </div>
                     }
                 </div>
-            }
+            }            
         </div>
     </div>
 </RadzenCard>
@@ -46,9 +60,14 @@
     [Parameter]
     public GenericModel Model { get; set; }
 
-    protected void OnChange ((String, Object) pair)
+    protected void OnValueChange ((String, Object) pair)
     {
-        Model.UpdateResult (pair.Item1, pair.Item2);
+        Model.UpdateParamValue (pair.Item1, pair.Item2);
+    }
+
+    protected void OnConvertTypeChange ((String, NL.ConvertType) pair)
+    {
+        Model.UpdateParamConvertType (pair.Item1, pair.Item2);
     }
 
     protected override void OnInitialized ()

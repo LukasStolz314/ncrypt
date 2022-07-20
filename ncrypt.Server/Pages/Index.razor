@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.Security.Cryptography
 @using System.Reflection
+@using System.Text
 @using ncrypt.Domain
 @using ncrypt.Library
 @using ncrypt.Library.Cipher
@@ -112,20 +113,23 @@
             foreach(var parameter in method.GetParameters())
             {
                 if (parameter.Name.Equals ("input"))
-                    methodParams.Add (result);
+                    methodParams.Add (parameter.ParameterType == typeof(Byte[]) 
+                        ? Converter.ToByteArray(result, model.InputConvertType) : result);
                 else
-                    methodParams.Add (model.Result[parameter.Name]);
+                    methodParams.Add (model.GetResultValue(parameter.Name, parameter.ParameterType));
             }
 
             List<Object> constructorParams = new();
             foreach (var parameter in serviceType.GetConstructors ().First ().GetParameters ())
-                constructorParams.Add (model.Result[parameter.Name!]);
-
-            Type ty = constructorParams[1].GetType ();
+                constructorParams.Add (model.GetResultValue(parameter.Name, parameter.ParameterType));
 
             var instance = Activator.CreateInstance (serviceType, constructorParams.ToArray ());
 
-            result = (String) method.Invoke (instance, methodParams.ToArray())!;
+            var returnValue = method.Invoke (instance, methodParams.ToArray())!;
+            if(returnValue.GetType() == typeof(Byte[]))
+                result = Converter.ToString((Byte[])returnValue, model.OutputConvertType);
+            else
+                result = Converter.OtherString((String) returnValue, model.OutputConvertType);
         }
 
         Output = result;

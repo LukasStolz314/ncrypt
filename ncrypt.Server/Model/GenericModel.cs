@@ -8,16 +8,9 @@ public class GenericModel
     public String Name { get; set; }
     public Type ServiceType { get; set; }
     public String SelectedMethod { get; set; } = "";
-
-    public Dictionary<String, Object> Result { get; } = new ();
-
-    public void UpdateResult(String key, Object value)
-    {
-        if(Result.ContainsKey(key))
-            Result[key] = value;
-        else
-            Result.Add(key, value);
-    }
+    public ConvertType OutputConvertType { get; set; }
+    public ConvertType InputConvertType { get; set; }
+    public List<ParameterModel> Parameters { get; } = new ();    
 
     private List<MethodInfo>? _serviceMethods;
     public List<MethodInfo> ServiceMethods
@@ -58,5 +51,35 @@ public class GenericModel
         parameters.RemoveAll(x => x.Name.Equals ("input"));       
 
         return parameters.ToArray();
-    }        
+    }
+    
+    public Object GetResultValue (String paramName, Type paramType)
+    {
+        var param = Parameters.First (m => m.Name.Equals (paramName));
+        var result = param.Value;
+
+        if(paramType == typeof(Byte[]))
+            result = Converter.ToByteArray((String)param.Value, param.ConvertType ?? ConvertType.HEX);
+
+        return result;
+    }
+        
+
+    public void UpdateParamValue(String key, Object value)
+    {
+        Func<ParameterModel, Boolean> nameFunc = m => m.Name.Equals(key);
+        if(Parameters.Any(nameFunc))
+            Parameters.First(nameFunc).Update(value, null);
+        else
+            Parameters.Add(new(key, value));
+    }
+
+    public void UpdateParamConvertType(String key, ConvertType convertType)
+    {
+        Func<ParameterModel, Boolean> nameFunc = m => m.Name.Equals(key);
+        if(Parameters.Any(nameFunc))
+            Parameters.First(nameFunc).Update(null, convertType);
+        else
+            Parameters.Add(new(key, convertType));
+    }
 }

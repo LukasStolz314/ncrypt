@@ -1,5 +1,4 @@
-﻿using ncrypt.Domain;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace ncrypt.Library.Cipher;
 
@@ -8,20 +7,15 @@ public class AESService
 {
     private Byte[] _key;
     private CipherMode _mode;
-    private ConvertType _inputType;
-    private ConvertType _outputType;
 
-    public AESService(String key, CipherMode mode,
-        ConvertType inputType, ConvertType outputType)
+    public AESService(Byte[] key, CipherMode mode)
     {
-        _key = Converter.ToByteArray (key, inputType);
+        _key = key;
         _mode = mode;
-        _inputType = inputType;
-        _outputType = outputType;
     }
 
     [SelectableFunction]
-    public String Encrypt(String input, String iv)
+    public Byte[] Encrypt(String input, Byte[] iv)
     {
         // Create aes with given parameters
         Aes aes = CreateAes (iv);
@@ -41,14 +35,11 @@ public class AESService
 
             resultBytes = ms.ToArray ();
         }
-
-        // Return result object
-        String result = Converter.ToString (resultBytes, _outputType);
-        return result;
+        return resultBytes;
     }
 
     [SelectableFunction]
-    public String Decrypt(String input, String iv)
+    public String Decrypt(Byte[] input, Byte[] iv)
     {
         //Create aes with given parameters
         Aes aes = CreateAes (iv);
@@ -56,7 +47,7 @@ public class AESService
 
         // Decrypt cipher text with generated decryptor
         String result;
-        using (MemoryStream ms = new (Converter.ToByteArray (input, _inputType)))
+        using (MemoryStream ms = new (input))
         {
             using (CryptoStream cs = new (ms, decryptor, CryptoStreamMode.Read))
             {
@@ -70,12 +61,12 @@ public class AESService
         return result;
     }
 
-    private Aes CreateAes(String iv)
+    private Aes CreateAes(Byte[] iv)
     {
         Aes aes = Aes.Create ();
         aes.Key = _key;
         aes.Mode = _mode;
-        aes.IV = Converter.ToByteArray (iv, _inputType);
+        aes.IV = iv;
 
         return aes;
     }
