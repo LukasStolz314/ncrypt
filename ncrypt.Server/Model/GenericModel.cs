@@ -7,9 +7,7 @@ public class GenericModel
 {
     public String Name { get; set; }
     public Type ServiceType { get; set; }
-    public String SelectedMethod { get; set; } = "";
-    public ConvertType OutputConvertType { get; set; }
-    public ConvertType InputConvertType { get; set; }
+    public String SelectedMethod { get; set; } = "";    
     public Dictionary<String, Object> Result { get; } = new ();    
 
     private List<MethodInfo>? _serviceMethods;

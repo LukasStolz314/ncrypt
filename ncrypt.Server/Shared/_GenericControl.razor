@@ -1,11 +1,11 @@
 ﻿@using System.Reflection
 @using NL = ncrypt.Library
 
-<div class="d-flex align-items-center">
-    <div class="w-75">
+<div class="d-flex align-items-center w-100">
+    <div class="me-2" style="width:80%;">
         @if (InfoType.IsEnum)
         {
-            <RadzenDropDown class="control w-75" Change=@(args => DropDownUpdated(args)) Placeholder="Please pick" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
+            <RadzenDropDown style="width:98.5%" Change=@(args => DropDownUpdated(args)) Placeholder="Please pick" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
         }
         else
         {
@@ -13,27 +13,21 @@
             {
                 // String input
                 case "String":
-                    <RadzenTextArea class="control w-75" @oninput=@ValueUpdated Placeholder="Enter here..."/>
+                    <RadzenTextArea class="w-100" @oninput=@ValueUpdated Placeholder="Enter here..."/>
                     break;
                 case "Int32":
-                    <RadzenNumeric class="control w-75" @oninput=@ValueUpdated Placeholder="0" TValue="Int32"/>
+                    <RadzenNumeric class="w-100" @oninput=@ValueUpdated Placeholder="0" TValue="Int32"/>
                     break;
             }
         }
     </div>
     @if (InfoType.Name.Equals ("String"))
     {
-        <div class="w-25">
-            <RadzenDropDown TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@SelectedConvertType />
+        <div style="width:20%">
+            <RadzenDropDown class="w-100 ms-2" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@SelectedConvertType />
         </div>
     }
 </div>
-
-<style>
-    .control {
-        width:90% !important;
-    }
-</style>
  
 @code{
     [Parameter]
