@@ -1,3 +1,13 @@
 ﻿namespace ncrypt.Library;
 
-public class RenderUI : Attribute { }
+public enum RenderClass
+{
+    Cipher,
+    Format,
+    Hash
+}
+
+public class RenderUI : Attribute 
+{
+    public RenderClass Class { get; set; }
+}

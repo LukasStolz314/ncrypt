@@ -2,7 +2,7 @@
 
 namespace ncrypt.Library.Code;
 
-[RenderUI]
+[RenderUI (Class = RenderClass.Format)]
 public class BinaryService
 {
     [RenderUI]

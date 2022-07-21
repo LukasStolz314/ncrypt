@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ncrypt.Library.Cipher;
 
-[RenderUI]
+[RenderUI (Class = RenderClass.Cipher)]
 public class RSAService
 {
     [RenderUI]

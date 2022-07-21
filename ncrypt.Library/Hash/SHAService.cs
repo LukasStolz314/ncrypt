@@ -11,7 +11,7 @@ public enum HashType
     SHA512,
 }
 
-[RenderUI]
+[RenderUI (Class = RenderClass.Hash)]
 public class SHAService
 {
     public static HashAlgorithm GetHashInstance (HashType type) => type switch

@@ -2,7 +2,7 @@
 
 namespace ncrypt.Library.Cipher;
 
-[RenderUI]
+[RenderUI (Class = RenderClass.Cipher)]
 public class AESService
 {
     private Byte[] _key;

@@ -3,7 +3,7 @@
 @inject DragAndDropService DragAndDropService
 @typeparam T
 
-<div ondragover="event.preventDefault()" @ondrop="@OnDrop" style="@Style">
+<div ondragover="event.preventDefault()" @ondrop="@OnDrop" style="@Style" class="w-100 h-100">
     @ChildContent
 </div>
 

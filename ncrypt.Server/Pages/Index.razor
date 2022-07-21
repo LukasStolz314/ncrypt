@@ -16,13 +16,18 @@
         <div class="col-6 ps-0 pe-1 pb-1 d-flex h-100">
             <div class="col-4 pe-1">
                 <RadzenCard class="p-2 h-100">
-                    <RadzenDataList WrapItems="true" Data="@models" TItem="Type">
-                        <Template Context="model">
-                            <Draggable Data="@model" Class="mx-1" Style="width:45%">
-                                <RadzenCard class="m-0 mb-1 px-0 py-1 plain-card">
-                                    <p style="text-align:center;font-size:20px; font-family:'Century Gothic'">@(model.Name.Replace ("Service", ""))</p>
-                                </RadzenCard>
-                            </Draggable>
+                    <RadzenDataList WrapItems="true" Data="@models" TItem="List<Type>" Style="display:block">
+                        <Template Context="list">
+                            <h3 class="mt-3 mx-2 mb-0 w-100">@(list.First().GetCustomAttribute<RenderUI>()!.Class.ToString())</h3>
+                            <hr class="mb-2 mt-0 w-100" />
+                            @foreach (var model in list)
+                            {
+                                <Draggable Data="@model" Class="mx-1" Style="width:45%">
+                                    <RadzenCard class="m-0 mb-1 px-0 py-1 plain-card">
+                                        <p style="text-align:center;font-size:20px; font-family:'Century Gothic'">@(model.Name.Replace ("Service", ""))</p>
+                                    </RadzenCard>
+                                </Draggable>
+                            }
                         </Template>
                     </RadzenDataList>
                 </RadzenCard>
@@ -40,6 +45,12 @@
                     <hr class="mx-2 my-1" />
                     <div class="row m-2 mt-2 h-100" Style="overflow:auto">
                         <DropTarget T="Type" Drop="@OnDrop">
+                            @if (sequence.Count == 0)
+                            {
+                                <div class="w-100 h-100 df-jc-ac">
+                                    <h2 style="color:#d5d5d5">Place something here</h2>
+                                </div>
+                            }
                             <ul style="list-style:none;padding:0">
                                 @foreach (var model in sequence)
                                 {
@@ -69,10 +80,8 @@
 <style>
     .plain-card {
         width: 100%;
-
         background-color: #479cc8;
         color: white;
-
         border: solid 1px #479cc8;
         border-radius: 7px;
     }
@@ -106,7 +115,7 @@
     String Output { get; set; } = String.Empty;
 
     private NL.ConvertType _inputConvertType;
-    NL.ConvertType InputConvertType 
+    NL.ConvertType InputConvertType
     {
         get => _inputConvertType;
         set
@@ -117,7 +126,7 @@
     }
 
     private NL.ConvertType _outputConvertType;
-    NL.ConvertType OutputConvertType 
+    NL.ConvertType OutputConvertType
     {
         get => _outputConvertType;
         set
@@ -127,16 +136,21 @@
         }
     }
 
-    List<Type> models = new ();
+    List<List<Type>> models = new ();
     List<GenericModel> sequence = new ();
 
     protected override void OnInitialized ()
     {
         Assembly lib = Assembly.Load ("ncrypt.Library");
-        models = lib.GetTypes ()
+        var services = lib.GetTypes ()
             .Where (t => t.CustomAttributes
                 .Any (a => a.AttributeType == typeof (RenderUI))
             ).ToList ();
+
+        models = services.GroupBy (
+            s => s.GetCustomAttribute<RenderUI> ()!.Class,
+            (key, g) => g.ToList ()
+        ).ToList ();
     }
 
     void OnDrop (Type type)
