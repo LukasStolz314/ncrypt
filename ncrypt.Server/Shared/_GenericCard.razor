@@ -4,12 +4,12 @@
 
 <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
     <div class="container p-0">
-        <div class="row g-0 p-3">
-            <div class="row d-flex justify-content-around align-items-center">
+        <div class="row g-0 p-3 pb-1">
+            <div class="row mb-1 d-flex justify-content-around align-items-center">
                 <div class="col-3">
                     <p style="font-size:30px; text-align:center">@Model.Name</p>
                 </div>
-                <div class="col-9 d-flex justify-content-around align-items-center">
+                <div class="col-9 mb-2 d-flex justify-content-around align-items-center">
                     <RadzenSelectBar TValue="String" @bind-Value=@Model.SelectedMethod Data=@Model.ServiceMethodNames />
                 </div>
             </div>      
@@ -20,7 +20,7 @@
                     @foreach (var prop in Model.ConstructorParameters)
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
-                            <h5 class="mb-0 w-25">@(prop.Name):</h5>
+                            <h5 class="mb-0 w-25" style="overflow:auto">@(prop.Name):</h5>
                             <_GenericControl OnChange="OnChange" Info=@prop></_GenericControl>
                         </div>
                     }

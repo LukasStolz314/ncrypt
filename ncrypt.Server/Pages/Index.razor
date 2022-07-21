@@ -174,59 +174,69 @@
     void OnDo ()
     {
         StringBuilder errors = new ();
-        String result = NL.Converter.ToHex (Input, InputConvertType);
-        foreach (var model in sequence)
+
+        try
         {
-            Type serviceType = model.ServiceType;
-            MethodInfo? method = serviceType.GetMethod (model.SelectedMethod);
-            List<Object> methodParams = new ();
-            StringBuilder missingParams = new ();
-
-            foreach (var parameter in method!.GetParameters ())
+            String result = NL.Converter.ToHex (Input, InputConvertType);
+            foreach (var model in sequence)
             {
-                try
+                Type serviceType = model.ServiceType;
+                MethodInfo? method = serviceType.GetMethod (model.SelectedMethod);
+                List<Object> methodParams = new ();
+                StringBuilder missingParams = new ();
+
+                foreach (var parameter in method!.GetParameters ())
                 {
-                    if (parameter.Name!.Equals ("input"))
-                        methodParams.Add (result);
-                    else
-                        methodParams.Add (model.Result[parameter.Name]);
+                    try
+                    {
+                        if (parameter.Name!.Equals ("input"))
+                            methodParams.Add (result);
+                        else
+                            methodParams.Add (model.Result[parameter.Name]);
+                    }
+                    catch (KeyNotFoundException e)
+                    {
+                        var splitted = e.Message.Split ('\'');
+                        if (splitted.Count () == 3)
+                            missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
+                        continue;
+                    }
                 }
-                catch (KeyNotFoundException e)
+
+                List<Object> constructorParams = new ();
+                foreach (var parameter in serviceType.GetConstructors ().First ().GetParameters ())
                 {
-                    var splitted = e.Message.Split ('\'');
-                    if (splitted.Count () == 3)
-                        missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
+                    try
+                    {
+                        constructorParams.Add (model.Result[parameter.Name!]);
+                    }
+                    catch (KeyNotFoundException e)
+                    {
+                        var splitted = e.Message.Split ('\'');
+                        if (splitted.Count () == 3)
+                            missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
+                        continue;
+                    }
+                }
+                if (!missingParams.ToString ().Equals (String.Empty))
+                {
+                    errors.Append (missingParams);
                     continue;
                 }
+
+                var instance = Activator.CreateInstance (serviceType, constructorParams.ToArray ());
+
+                result = (String) method.Invoke (instance, methodParams.ToArray ())!;                
             }
 
-            List<Object> constructorParams = new ();
-            foreach (var parameter in serviceType.GetConstructors ().First ().GetParameters ())
-            {
-                try
-                {
-                    constructorParams.Add (model.Result[parameter.Name!]);
-                }
-                catch (KeyNotFoundException e)
-                {
-                    var splitted = e.Message.Split ('\'');
-                    if (splitted.Count () == 3)
-                        missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
-                    continue;
-                }
-            }
-            if (!missingParams.ToString ().Equals (String.Empty))
-            {
-                errors.Append (missingParams);
-                continue;
-            }
-
-            var instance = Activator.CreateInstance (serviceType, constructorParams.ToArray ());
-
-            result = (String) method.Invoke (instance, methodParams.ToArray ())!;
+            Output = Converter.FromHex (result, OutputConvertType);
+        }
+        catch(FormatException e)
+        {
+            errors.AppendLine ("Invalid Input Format");
         }
 
-        result = Converter.FromHex (result, OutputConvertType);
-        Output = errors.ToString ().Equals (String.Empty) ? result : errors.ToString ();
+        if (!String.IsNullOrEmpty(errors.ToString()))
+            Output = errors.ToString ();
     }
 }
