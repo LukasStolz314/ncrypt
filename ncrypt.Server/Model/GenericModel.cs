@@ -8,16 +8,9 @@ public class GenericModel
     public String Name { get; set; }
     public Type ServiceType { get; set; }
     public String SelectedMethod { get; set; } = "";
-
-    public Dictionary<String, Object> Result { get; } = new ();
-
-    public void UpdateResult(String key, Object value)
-    {
-        if(Result.ContainsKey(key))
-            Result[key] = value;
-        else
-            Result.Add(key, value);
-    }
+    public ConvertType OutputConvertType { get; set; }
+    public ConvertType InputConvertType { get; set; }
+    public Dictionary<String, Object> Result { get; } = new ();    
 
     private List<MethodInfo>? _serviceMethods;
     public List<MethodInfo> ServiceMethods
@@ -28,7 +21,7 @@ public class GenericModel
             {
                 _serviceMethods = ServiceType.GetMethods ()
                     .Where (m => m.CustomAttributes
-                         .Any (a => a.AttributeType == typeof (SelectableFunction))
+                         .Any (a => a.AttributeType == typeof (RenderUI))
                     ).ToList ();
             }
 
@@ -58,5 +51,13 @@ public class GenericModel
         parameters.RemoveAll(x => x.Name.Equals ("input"));       
 
         return parameters.ToArray();
-    }        
+    }
+
+    public void UpdateResult(String key, Object value)
+    {
+        if(Result.ContainsKey(key))
+            Result[key] = value;
+        else
+            Result.Add(key, value);
+    }
 }

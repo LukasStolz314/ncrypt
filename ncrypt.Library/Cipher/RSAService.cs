@@ -5,10 +5,10 @@ using System.Text;
 
 namespace ncrypt.Library.Cipher;
 
-[SelectableService]
+[RenderUI]
 public class RSAService
 {
-    [SelectableFunction]
+    [RenderUI]
     public RSAKeyPairResult GenerateKeyPair(Int32 keySize)
     {
         // Create key pair and export to Base64 String
@@ -36,14 +36,14 @@ public class RSAService
         return new (publicSB.ToString (), privateSB.ToString (), keySize);
     }
 
-    [SelectableFunction]
+    [RenderUI]
     public String Encrypt(String publicKey, String data)
     {
         Byte[] resultBytes;
         using (RSACryptoServiceProvider rsa = new ())
         {
             rsa.ImportFromPem(publicKey.ToCharArray());
-            var dataToEncrypt = Converter.ToByteArray (data, ConvertType.UTF8);
+            var dataToEncrypt = Converter.ToByteArray (data, ConvertType.HEX);
             resultBytes = rsa.Encrypt (dataToEncrypt, false);
         }
 
@@ -51,7 +51,7 @@ public class RSAService
         return result;
     }
 
-    [SelectableFunction]
+    [RenderUI]
     public String Decrypt(String privateKey, String data)
     {
         Byte[] resultBytes;
@@ -66,7 +66,7 @@ public class RSAService
         return result;
     }
 
-    [SelectableFunction]
+    [RenderUI]
     public String Sign(String privateKey, String data, HashType halg)
     {
         Byte[] resultBytes;
@@ -81,7 +81,7 @@ public class RSAService
         return result;
     }
 
-    [SelectableFunction]
+    [RenderUI]
     public Boolean Verify(String publicKey, String data, String signature, HashType halg)
     {
         Boolean result;

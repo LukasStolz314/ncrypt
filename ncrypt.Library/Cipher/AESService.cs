@@ -1,31 +1,27 @@
-﻿using ncrypt.Domain;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace ncrypt.Library.Cipher;
 
-[SelectableService]
+[RenderUI]
 public class AESService
 {
     private Byte[] _key;
     private CipherMode _mode;
-    private ConvertType _inputType;
-    private ConvertType _outputType;
 
-    public AESService(String key, CipherMode mode,
-        ConvertType inputType, ConvertType outputType)
+    public AESService(String key, CipherMode mode)
     {
-        _key = Converter.ToByteArray (key, inputType);
+        _key = Converter.ToByteArray (key, ConvertType.HEX);
         _mode = mode;
-        _inputType = inputType;
-        _outputType = outputType;
     }
 
-    [SelectableFunction]
+    [RenderUI]
     public String Encrypt(String input, String iv)
     {
         // Create aes with given parameters
         Aes aes = CreateAes (iv);
         var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+        input = Converter.FromHex (input, ConvertType.ASCII);
 
         // Encrypt plain text with generated encryptor
         Byte[] resultBytes;
@@ -43,11 +39,11 @@ public class AESService
         }
 
         // Return result object
-        String result = Converter.ToString (resultBytes, _outputType);
+        String result = Converter.ToString (resultBytes, ConvertType.HEX);
         return result;
     }
 
-    [SelectableFunction]
+    [RenderUI]
     public String Decrypt(String input, String iv)
     {
         //Create aes with given parameters
@@ -56,7 +52,7 @@ public class AESService
 
         // Decrypt cipher text with generated decryptor
         String result;
-        using (MemoryStream ms = new (Converter.ToByteArray (input, _inputType)))
+        using (MemoryStream ms = new (Converter.ToByteArray (input, ConvertType.HEX)))
         {
             using (CryptoStream cs = new (ms, decryptor, CryptoStreamMode.Read))
             {
@@ -67,6 +63,7 @@ public class AESService
             }
         }
 
+        result = Converter.ToHex(result, ConvertType.ASCII);
         return result;
     }
 
@@ -75,7 +72,7 @@ public class AESService
         Aes aes = Aes.Create ();
         aes.Key = _key;
         aes.Mode = _mode;
-        aes.IV = Converter.ToByteArray (iv, _inputType);
+        aes.IV = Converter.ToByteArray (iv, ConvertType.HEX);
 
         return aes;
     }

@@ -1,8 +1,10 @@
 ﻿@page "/"
 @using System.Security.Cryptography
 @using System.Reflection
+@using System.Text
 @using ncrypt.Domain
 @using ncrypt.Library
+@using NL = ncrypt.Library
 @using ncrypt.Library.Cipher
 @using ncrypt.Library.Hash
 @using ncrypt.Server.Model
@@ -50,10 +52,10 @@
         </div>
         <div class="col-6">
             <div class="row h-50 pb-1">
-                <RadzenTextArea Placeholder="Enter here..." Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Input />
+                <RadzenTextArea class="w-100 p-2 text-area" Placeholder="Enter here..." @oninput=@OnInputChange />
             </div>
             <div class="row h-50 pb-1">
-                <RadzenTextArea Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Output />
+                <RadzenTextArea class="w-100 p-2 text-area" Disabled=true @bind-Value=@Output />
             </div>
         </div>
     </div>
@@ -71,10 +73,18 @@
             box-shadow: 0.7px 0.7px #7FB5FF;
             border: solid 1px #001D6E;
         }
+
+    .text-area {
+        resize: none;
+        line-height: 1.1;
+        font-size: 1.1rem;
+        color: black !important;
+    }
 </style>
 
 @code {
     String Input { get; set; } = String.Empty;
+
     String Output { get; set; } = String.Empty;
 
     List<Type> models = new ();
@@ -85,7 +95,7 @@
         Assembly lib = Assembly.Load ("ncrypt.Library");
         models = lib.GetTypes ()
             .Where (t => t.CustomAttributes
-                .Any (a => a.AttributeType == typeof (SelectableService))
+                .Any (a => a.AttributeType == typeof (RenderUI))
             ).ToList ();
     }
 
@@ -101,33 +111,68 @@
         Output = String.Empty;
     }
 
+    private void OnInputChange (ChangeEventArgs e)
+    {
+        Input = (String) e.Value!;
+        OnDo ();
+    }
+
     void OnDo ()
     {
+        StringBuilder errors = new ();
         String result = Input;
         foreach (var model in sequence)
         {
             Type serviceType = model.ServiceType;
             MethodInfo? method = serviceType.GetMethod (model.SelectedMethod);
-            List<Object> methodParams = new();
-            foreach(var parameter in method.GetParameters())
+            List<Object> methodParams = new ();
+            StringBuilder missingParams = new ();
+
+            foreach (var parameter in method!.GetParameters ())
             {
-                if (parameter.Name.Equals ("input"))
-                    methodParams.Add (result);
-                else
-                    methodParams.Add (model.Result[parameter.Name]);
+                try
+                {
+                    if (parameter.Name!.Equals ("input"))
+                        methodParams.Add (NL.Converter.ToHex (result, model.InputConvertType));
+                    else
+                        methodParams.Add (model.Result[parameter.Name]);
+                }
+                catch (KeyNotFoundException e)
+                {
+                    var splitted = e.Message.Split ('\'');
+                    if (splitted.Count () == 3)
+                        missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
+                    continue;
+                }
             }
 
-            List<Object> constructorParams = new();
+            List<Object> constructorParams = new ();
             foreach (var parameter in serviceType.GetConstructors ().First ().GetParameters ())
-                constructorParams.Add (model.Result[parameter.Name!]);
-
-            Type ty = constructorParams[1].GetType ();
+            {
+                try
+                {
+                    constructorParams.Add (model.Result[parameter.Name!]);
+                }
+                catch (KeyNotFoundException e)
+                {
+                    var splitted = e.Message.Split ('\'');
+                    if (splitted.Count () == 3)
+                        missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
+                    continue;
+                }
+            }
+            if (!missingParams.ToString ().Equals (String.Empty))
+            {
+                errors.Append (missingParams);
+                continue;
+            }
 
             var instance = Activator.CreateInstance (serviceType, constructorParams.ToArray ());
 
-            result = (String) method.Invoke (instance, methodParams.ToArray())!;
+            var retValue = (String) method.Invoke (instance, methodParams.ToArray ())!;
+            result = Converter.FromHex (retValue, model.OutputConvertType);
         }
 
-        Output = result;
+        Output = errors.ToString ().Equals (String.Empty) ? result : errors.ToString ();
     }
 }

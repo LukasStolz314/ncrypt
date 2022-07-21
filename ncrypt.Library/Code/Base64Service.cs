@@ -2,17 +2,17 @@
 
 namespace ncrypt.Library.Code;
 
-[SelectableService]
+[RenderUI]
 public class Base64Service
 {
-    [SelectableFunction]
+    [RenderUI]
     public String Encode(String input)
     {
         var bytes = Encoding.ASCII.GetBytes (input);
         return Convert.ToBase64String (bytes);
     }
 
-    [SelectableFunction]
+    [RenderUI]
     public String Decode(String input)
     {
         var bytes = Convert.FromBase64String (input);

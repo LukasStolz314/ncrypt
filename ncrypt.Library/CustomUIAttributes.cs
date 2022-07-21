@@ -1,5 +1,3 @@
 ﻿namespace ncrypt.Library;
 
-public class SelectableFunction : Attribute { }
-
-public class SelectableService : Attribute { }
+public class RenderUI : Attribute { }
