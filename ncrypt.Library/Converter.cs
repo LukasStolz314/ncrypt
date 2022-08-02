@@ -4,9 +4,9 @@ namespace ncrypt.Library;
 
 public enum ConvertType
 {
+    ASCII,
     HEX,
     BASE64,
-    ASCII
 }
 
 public class Converter
