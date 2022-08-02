@@ -1,0 +1,3 @@
+[submodule "ncrypt.Library"]
+	path = ncrypt.Library
+	url = git@github.com:LukasStolz314/ncrypt.Library.git
