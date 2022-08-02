@@ -154,7 +154,7 @@
     }    
 
     protected override void OnInitialized () 
-        => models = Service.LoadGroupedTypes ("ncrypt.Library");
+        => models = Service.LoadGroupedTypes ();
 
     void OnDrop (Type type) 
         => sequence.Add (new (type));
