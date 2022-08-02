@@ -5,8 +5,6 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ncrypt.Server", "ncrypt.Server\ncrypt.Server.csproj", "{DF10F2F9-CCB2-4330-9BA8-CE4240C5C48F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ncrypt.Domain", "ncrypt.Domain\ncrypt.Domain.csproj", "{B6016D46-A5A3-4557-AA3C-CEBE2E02498E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ncrypt.Library", "ncrypt.Library\ncrypt.Library.csproj", "{9577FF5B-8B09-4FA0-87D1-11A2410609E5}"
 EndProject
 Global
@@ -19,10 +17,6 @@ Global
 		{DF10F2F9-CCB2-4330-9BA8-CE4240C5C48F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF10F2F9-CCB2-4330-9BA8-CE4240C5C48F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF10F2F9-CCB2-4330-9BA8-CE4240C5C48F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B6016D46-A5A3-4557-AA3C-CEBE2E02498E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B6016D46-A5A3-4557-AA3C-CEBE2E02498E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B6016D46-A5A3-4557-AA3C-CEBE2E02498E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B6016D46-A5A3-4557-AA3C-CEBE2E02498E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9577FF5B-8B09-4FA0-87D1-11A2410609E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9577FF5B-8B09-4FA0-87D1-11A2410609E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9577FF5B-8B09-4FA0-87D1-11A2410609E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
