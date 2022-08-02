@@ -9,6 +9,8 @@
 @using ncrypt.Library.Hash
 @using ncrypt.Server.Model
 
+@inject ApplicationService Service
+
 <PageTitle>ncrypt</PageTitle>
 
 <div class="container-fluid h-100">
@@ -39,7 +41,7 @@
                             <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" />
                         </div>
                         <div class="col df-jc-ac p-1 m-1">
-                            <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@OnDo Text="DO" Icon="check" ButtonStyle="ButtonStyle.Success" />
+                            <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@Execute Text="Execute" Icon="check" ButtonStyle="ButtonStyle.Success" />
                         </div>
                     </div>
                     <hr class="mx-2 my-1" />
@@ -66,11 +68,12 @@
         </div>
         <div class="col-6">
             <div class="row h-50 pb-1 text-container">
-                <RadzenDropDown class="rounded-pill convert-type-dd" Style="" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@InputConvertType />
+                <RadzenDropDown class="rounded-pill convert-type-dd" Style="" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@InputConvertType />                
                 <RadzenTextArea class="w-100 p-2 text-area" Placeholder="Enter here..." @oninput=@OnInputChange />
             </div>
             <div class="row h-50 pb-1 text-container">
                 <RadzenDropDown class="rounded-pill convert-type-dd" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@OutputConvertType />
+                <RadzenButton class="rounded-pill clear-button" Click=@(() => Output = String.Empty) Icon="clear" ButtonStyle="ButtonStyle.Light" />
                 <RadzenTextArea class="w-100 p-2 text-area" Disabled=true @bind-Value=@Output />
             </div>
         </div>
@@ -82,6 +85,7 @@
         width: 100%;
         background-color: #479cc8;
         color: white;
+       
         border: solid 1px #479cc8;
         border-radius: 7px;
     }
@@ -102,6 +106,13 @@
         top: 10px
     }
 
+    .clear-button {
+        width: 5%;
+        position: absolute;
+        right: 10px;
+        top: 50px;
+    }
+
     .text-area {
         resize: none;
         line-height: 1.1;
@@ -111,9 +122,15 @@
 </style>
 
 @code {
+    // Textarea value fields
     String Input { get; set; } = String.Empty;
     String Output { get; set; } = String.Empty;
 
+    // Datalists
+    List<List<Type>> models = new ();
+    List<GenericModel> sequence = new ();
+
+    // Convert type dropdowns
     private NL.ConvertType _inputConvertType;
     NL.ConvertType InputConvertType
     {
@@ -121,7 +138,7 @@
         set
         {
             _inputConvertType = value;
-            OnDo ();
+            Execute ();
         }
     }
 
@@ -132,109 +149,31 @@
         set
         {
             _outputConvertType = value;
-            OnDo ();
+            Execute ();
         }
-    }
+    }    
 
-    List<List<Type>> models = new ();
-    List<GenericModel> sequence = new ();
+    protected override void OnInitialized () 
+        => models = Service.LoadGroupedTypes ("ncrypt.Library");
 
-    protected override void OnInitialized ()
-    {
-        Assembly lib = Assembly.Load ("ncrypt.Library");
-        var services = lib.GetTypes ()
-            .Where (t => t.CustomAttributes
-                .Any (a => a.AttributeType == typeof (RenderUI))
-            ).ToList ();
+    void OnDrop (Type type) 
+        => sequence.Add (new (type));
 
-        models = services.GroupBy (
-            s => s.GetCustomAttribute<RenderUI> ()!.Class,
-            (key, g) => g.ToList ()
-        ).ToList ();
-    }
-
-    void OnDrop (Type type)
-    {
-        sequence.Add (new (type));
-    }
-
-    void OnDeleteClick ()
-    {
-        sequence.Clear ();
-        Input = String.Empty;
-        Output = String.Empty;
-    }
+    void OnDeleteClick () 
+        => sequence.Clear ();
 
     private void OnInputChange (ChangeEventArgs e)
     {
         Input = (String) e.Value!;
-        OnDo ();
+        Execute ();
     }
 
-    void OnDo ()
+    void Execute ()
     {
         StringBuilder errors = new ();
 
-        try
-        {
-            String result = NL.Converter.ToHex (Input, InputConvertType);
-            foreach (var model in sequence)
-            {
-                Type serviceType = model.ServiceType;
-                MethodInfo? method = serviceType.GetMethod (model.SelectedMethod);
-                List<Object> methodParams = new ();
-                StringBuilder missingParams = new ();
-
-                foreach (var parameter in method!.GetParameters ())
-                {
-                    try
-                    {
-                        if (parameter.Name!.Equals ("input"))
-                            methodParams.Add (result);
-                        else
-                            methodParams.Add (model.Result[parameter.Name]);
-                    }
-                    catch (KeyNotFoundException e)
-                    {
-                        var splitted = e.Message.Split ('\'');
-                        if (splitted.Count () == 3)
-                            missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
-                        continue;
-                    }
-                }
-
-                List<Object> constructorParams = new ();
-                foreach (var parameter in serviceType.GetConstructors ().First ().GetParameters ())
-                {
-                    try
-                    {
-                        constructorParams.Add (model.Result[parameter.Name!]);
-                    }
-                    catch (KeyNotFoundException e)
-                    {
-                        var splitted = e.Message.Split ('\'');
-                        if (splitted.Count () == 3)
-                            missingParams.AppendLine ($"Parameter {splitted[1]} is missing");
-                        continue;
-                    }
-                }
-                if (!missingParams.ToString ().Equals (String.Empty))
-                {
-                    errors.Append (missingParams);
-                    continue;
-                }
-
-                var instance = Activator.CreateInstance (serviceType, constructorParams.ToArray ());
-
-                result = (String) method.Invoke (instance, methodParams.ToArray ())!;                
-            }
-
-            Output = Converter.FromHex (result, OutputConvertType);
-        }
-        catch(FormatException e)
-        {
-            errors.AppendLine ("Invalid Input Format");
-        }
+        ExecuteSequenceModel model = new (Input, InputConvertType, sequence, OutputConvertType);
+        Output = Service.ExecuteSequence (model, ref errors);
 
         if (!String.IsNullOrEmpty(errors.ToString()))
             Output = errors.ToString ();

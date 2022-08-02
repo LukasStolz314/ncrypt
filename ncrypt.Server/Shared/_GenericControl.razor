@@ -55,16 +55,19 @@
     private async Task ValueUpdated(ChangeEventArgs? e)
     {
         // Update current input variable
-        if(e is not null)
+        if(e is not null && ((String) e.Value!) != "")
             Value = e.Value;
 
         // Check if value needs to be converted
         var result = Value;
         if (InfoType == typeof (String))
             result = NL.Converter.ToHex ((String) (Value ?? String.Empty), SelectedConvertType);
+        else if (InfoType == typeof (Int32))
+            result = String.IsNullOrEmpty ((String)Value!) ? 0 : Convert.ToInt32(Value);
+
 
         // Update result value of model
-        await OnChange.InvokeAsync ((Info!.Name!, Convert.ChangeType(result, InfoType)!));
+        await OnChange.InvokeAsync ((Info!.Name!, result));
     }
 
     private async Task DropDownUpdated(Object value)
