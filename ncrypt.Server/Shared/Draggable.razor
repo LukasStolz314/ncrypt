@@ -3,7 +3,7 @@
 @typeparam T
 @inject DragAndDropService DragAndDropService
 
-<div class="h-100 p-0 m-0 border-0 w-100" draggable="true" @ondragstart="@OnDragStart">
+<div class="h-100 p-0 m-0 border-0 @Class" style="@Style" draggable="true" @ondragstart="@OnDragStart">
     @ChildContent
 </div>
 
@@ -13,6 +13,12 @@
 
     [Parameter]
     public String Zone { get; set; } = String.Empty;
+
+    [Parameter]
+    public String Class { get; set; } = String.Empty;
+
+    [Parameter]
+    public String Style { get; set; } = String.Empty;
 
     [Parameter]
     public T? Data { get; set;}

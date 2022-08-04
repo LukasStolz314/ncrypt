@@ -1,4 +1,5 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
 html {
     font-family: 'Century Gothic';
     height: 100%;
@@ -67,3 +68,9 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.df-jc-ac {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,43 +1,80 @@
 ﻿@using System.Reflection
+@using NL = ncrypt.Library
 
-@if (InfoType.IsEnum)
-{
-    <RadzenDropDown Change=@(args => DropDownUpdated(args)) Placeholder="Please pick" class="@Class" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
-}
-else
-{
-    @switch (InfoType.Name)
+<div class="d-flex align-items-center w-100">
+    <div class="me-2" style="width:80%;">
+        @if (InfoType.IsEnum)
+        {
+            <RadzenDropDown style="width:98.5%" Change=@(args => DropDownUpdated(args)) Placeholder="Please pick" TValue="String" Data=Enum.GetNames(InfoType).ToList() />
+        }
+        else
+        {
+            @switch (InfoType.Name)
+            {
+                // String input
+                case "String":
+                    <RadzenTextArea class="w-100" @oninput=@ValueUpdated Placeholder="Enter here..."/>
+                    break;
+                case "Int32":
+                    <RadzenNumeric class="w-100" @oninput=@ValueUpdated Placeholder="0" TValue="Int32"/>
+                    break;
+            }
+        }
+    </div>
+    @if (InfoType.Name.Equals ("String"))
     {
-        case "String":
-            <RadzenTextArea @oninput=@ValueUpdated Placeholder="Enter here..." class="@Class"></RadzenTextArea>
-            break;
-        case "Int32":
-            <RadzenNumeric @oninput=@ValueUpdated Placeholder="0" ShowUpDown=false class="@Class" TValue="int"></RadzenNumeric>
-            break;
+        <div style="width:20%">
+            <RadzenDropDown class="w-100 ms-2" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@SelectedConvertType />
+        </div>
     }
-}
+</div>
  
 @code{
     [Parameter]
     public ParameterInfo? Info { get; set; }
 
     [Parameter]
-    public String? Class { get; set; }
-
-    [Parameter]
     public EventCallback<(String, Object)> OnChange { get; set; }
 
-    private async Task<Object> ValueUpdated(ChangeEventArgs e)
+    private Object? Value = String.Empty;
+
+    private NL.ConvertType _selectedConvertType;
+    private NL.ConvertType SelectedConvertType
     {
-        await OnChange.InvokeAsync ((Info.Name, Convert.ChangeType(e.Value, InfoType)));
-        return e;
+        get
+        {
+            return _selectedConvertType;
+        }
+        set
+        {
+            _selectedConvertType = value;
+            ValueUpdated (null);
+        }
     }
 
-    private async Task<Object> DropDownUpdated(Object value)
+    private async Task ValueUpdated(ChangeEventArgs? e)
     {
-        await OnChange.InvokeAsync ((Info.Name, Enum.Parse(InfoType, (String)value)));
-        return value;
+        // Update current input variable
+        if(e is not null && ((String) e.Value!) != "")
+            Value = e.Value;
+
+        // Check if value needs to be converted
+        var result = Value;
+        if (InfoType == typeof (String))
+            result = NL.Converter.ToHex ((String) (Value ?? String.Empty), SelectedConvertType);
+        else if (InfoType == typeof (Int32))
+            result = String.IsNullOrEmpty ((String)Value!) ? 0 : Convert.ToInt32(Value);
+
+
+        // Update result value of model
+        await OnChange.InvokeAsync ((Info!.Name!, result));
     }
 
-    public Type InfoType => Info.ParameterType;
+    private async Task DropDownUpdated(Object value)
+    {
+        // Update result value of model
+        await OnChange.InvokeAsync ((Info!.Name!, Enum.Parse(InfoType, (String)value)));
+    }
+
+    public Type InfoType => Info!.ParameterType;
 }

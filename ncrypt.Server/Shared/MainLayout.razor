@@ -1,14 +1,24 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
 <PageTitle>ncrypt.Server</PageTitle>
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+
 
     <main>
         <div class="top-row px-4" style="height:4vh">
+            @if (ShowProgress is true)
+            {
+                <RadzenProgressBar Style="width:13%"
+                               ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" Value="100">
+                </RadzenProgressBar>
+            }
+            <RadzenUpload Url="upload" ChooseText="Upload Service as .dll" Icon="upload" Error=@OnError
+                          Visible=@(!ShowProgress) Complete=@OnComplete Progress=@TrackProgress>
+            </RadzenUpload>
+
+
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
 
@@ -17,3 +27,30 @@
         </div>
     </main>
 </div>
+
+<style>
+    .rz-fileupload-buttonbar {
+        padding: 0;
+        background: none;
+    }
+</style>
+
+@code {
+    public Boolean ShowProgress { get; set; } = false;
+
+    void OnComplete()
+    {
+        ShowProgress = false;
+        Navigation.NavigateTo("/", true);
+    }
+
+    void TrackProgress(UploadProgressArgs args)
+    {
+        ShowProgress = true;
+    }
+
+    void OnError()
+    {
+        ShowProgress = false;
+    }
+}

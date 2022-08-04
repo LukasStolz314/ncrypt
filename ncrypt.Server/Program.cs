@@ -1,18 +1,11 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using ncrypt.Library;
-using ncrypt.Library.Cipher;
-using ncrypt.Library.Code;
-using ncrypt.Library.Hash;
 using ncrypt.Server;
-using ncrypt.Server.Data;
 
 var builder = WebApplication.CreateBuilder (args);
 
 // Add services to the container.
 builder.Services.AddRazorPages ();
 builder.Services.AddServerSideBlazor ();
-builder.Services.AddSingleton<WeatherForecastService> ();
+builder.Services.AddSingleton<ApplicationService> ();
 builder.Services.AddSingleton<DragAndDropService>();
 
 var app = builder.Build ();
@@ -31,6 +24,7 @@ app.UseStaticFiles ();
 
 app.UseRouting ();
 
+app.MapControllers();
 app.MapBlazorHub ();
 app.MapFallbackToPage ("/_Host");
 

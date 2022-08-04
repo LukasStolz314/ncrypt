@@ -1,11 +1,14 @@
 ﻿@page "/"
 @using System.Security.Cryptography
 @using System.Reflection
-@using ncrypt.Domain
+@using System.Text
 @using ncrypt.Library
+@using NL = ncrypt.Library
 @using ncrypt.Library.Cipher
 @using ncrypt.Library.Hash
 @using ncrypt.Server.Model
+
+@inject ApplicationService Service
 
 <PageTitle>ncrypt</PageTitle>
 
@@ -14,24 +17,41 @@
         <div class="col-6 ps-0 pe-1 pb-1 d-flex h-100">
             <div class="col-4 pe-1">
                 <RadzenCard class="p-2 h-100">
-                    <RadzenDataList WrapItems="true" Data="@models" TItem="Type">
-                        <Template Context="model">
-                            <Draggable Data="@model">
-                                <RadzenCard class="my-1 m-0 px-4 py-1 plain-card">
-                                    <p style="text-align:center;font-size:20px; font-family:'Century Gothic'">@(model.Name.Replace ("Service", ""))</p>
-                                </RadzenCard>
-                            </Draggable>
+                    <RadzenDataList WrapItems="true" Data="@models" TItem="List<Type>" Style="display:block">
+                        <Template Context="list">
+                            <h3 class="mt-3 mx-2 mb-0 w-100">@(list.First().GetCustomAttribute<RenderUI>()!.Class.ToString())</h3>
+                            <hr class="mb-2 mt-0 w-100" />
+                            @foreach (var model in list)
+                            {
+                                <Draggable Data="@model" Class="mx-1" Style="width:45%">
+                                    <RadzenCard class="m-0 mb-1 px-0 py-1 plain-card">
+                                        <p style="text-align:center;font-size:20px; font-family:'Century Gothic'">@(model.Name.Replace ("Service", ""))</p>
+                                    </RadzenCard>
+                                </Draggable>
+                            }
                         </Template>
                     </RadzenDataList>
                 </RadzenCard>
             </div>
             <div class="col-8 h-100">
                 <RadzenCard class="w-100 p-0 h-100">
-                    <div class="row m-2 justify-content-center">
-                        <RadzenButton class="m-1" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="width:60%; border-radius:10px" />
+                    <div class="row mx-2 mt-1">
+                        <div class="col df-jc-ac p-1 m-1">
+                            <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" />
+                        </div>
+                        <div class="col df-jc-ac p-1 m-1">
+                            <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@Execute Text="Execute" Icon="check" ButtonStyle="ButtonStyle.Success" />
+                        </div>
                     </div>
-                    <div class="row m-2 h-100" Style="overflow:auto">
+                    <hr class="mx-2 my-1" />
+                    <div class="row m-2 mt-2 h-100" Style="overflow:auto">
                         <DropTarget T="Type" Drop="@OnDrop">
+                            @if (sequence.Count == 0)
+                            {
+                                <div class="w-100 h-100 df-jc-ac">
+                                    <h2 style="color:#d5d5d5">Place something here</h2>
+                                </div>
+                            }
                             <ul style="list-style:none;padding:0">
                                 @foreach (var model in sequence)
                                 {
@@ -42,18 +62,18 @@
                             </ul>
                         </DropTarget>
                     </div>
-                    <div class="row m-2 justify-content-center">
-                        <RadzenButton class="m-1" Click=@OnDo Text="DO" Icon="check" ButtonStyle="ButtonStyle.Success" Style="width:60%; border-radius:10px" />
-                    </div>
                 </RadzenCard>
             </div>
         </div>
         <div class="col-6">
-            <div class="row h-50 pb-1">
-                <RadzenTextArea Placeholder="Enter here..." Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Input />
+            <div class="row h-50 pb-1 text-container">
+                <RadzenDropDown class="rounded-pill convert-type-dd" Style="" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@InputConvertType />                
+                <RadzenTextArea class="w-100 p-2 text-area" Placeholder="Enter here..." @oninput=@OnInputChange />
             </div>
-            <div class="row h-50 pb-1">
-                <RadzenTextArea Class="w-100 p-2" Style="resize:none; line-height:1.1" @bind-Value=@Output />
+            <div class="row h-50 pb-1 text-container">
+                <RadzenDropDown class="rounded-pill convert-type-dd" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@OutputConvertType />
+                <RadzenButton class="rounded-pill clear-button" Click=@(() => Output = String.Empty) Icon="clear" ButtonStyle="ButtonStyle.Light" />
+                <RadzenTextArea class="w-100 p-2 text-area" Disabled=true @bind-Value=@Output />
             </div>
         </div>
     </div>
@@ -61,73 +81,98 @@
 
 <style>
     .plain-card {
-        background-color: #C4DDFF;
-        border: solid 1px #C4DDFF;
-        border-radius: 10px;
         width: 100%;
+        background-color: #479cc8;
+        color: white;
+       
+        border: solid 1px #479cc8;
+        border-radius: 7px;
     }
 
         .plain-card:hover {
-            box-shadow: 0.7px 0.7px #7FB5FF;
             border: solid 1px #001D6E;
         }
+
+    .text-container {
+        position: relative;
+    }
+
+    .convert-type-dd {
+        width: 10%;
+        border: solid 0.1px #1A3651;
+        position: absolute;
+        right: 10px;
+        top: 10px
+    }
+
+    .clear-button {
+        width: 5%;
+        position: absolute;
+        right: 10px;
+        top: 50px;
+    }
+
+    .text-area {
+        resize: none;
+        line-height: 1.1;
+        font-size: 1.1rem;
+        color: black !important;
+    }
 </style>
 
 @code {
+    // Textarea value fields
     String Input { get; set; } = String.Empty;
     String Output { get; set; } = String.Empty;
 
-    List<Type> models = new ();
+    // Datalists
+    List<List<Type>> models = new ();
     List<GenericModel> sequence = new ();
 
-    protected override void OnInitialized ()
+    // Convert type dropdowns
+    private NL.ConvertType _inputConvertType;
+    NL.ConvertType InputConvertType
     {
-        Assembly lib = Assembly.Load ("ncrypt.Library");
-        models = lib.GetTypes ()
-            .Where (t => t.CustomAttributes
-                .Any (a => a.AttributeType == typeof (SelectableService))
-            ).ToList ();
-    }
-
-    void OnDrop (Type type)
-    {
-        sequence.Add (new (type));
-    }
-
-    void OnDeleteClick ()
-    {
-        sequence.Clear ();
-        Input = String.Empty;
-        Output = String.Empty;
-    }
-
-    void OnDo ()
-    {
-        String result = Input;
-        foreach (var model in sequence)
+        get => _inputConvertType;
+        set
         {
-            Type serviceType = model.ServiceType;
-            MethodInfo? method = serviceType.GetMethod (model.SelectedMethod);
-            List<Object> methodParams = new();
-            foreach(var parameter in method.GetParameters())
-            {
-                if (parameter.Name.Equals ("input"))
-                    methodParams.Add (result);
-                else
-                    methodParams.Add (model.Result[parameter.Name]);
-            }
-
-            List<Object> constructorParams = new();
-            foreach (var parameter in serviceType.GetConstructors ().First ().GetParameters ())
-                constructorParams.Add (model.Result[parameter.Name!]);
-
-            Type ty = constructorParams[1].GetType ();
-
-            var instance = Activator.CreateInstance (serviceType, constructorParams.ToArray ());
-
-            result = (String) method.Invoke (instance, methodParams.ToArray())!;
+            _inputConvertType = value;
+            Execute ();
         }
+    }
 
-        Output = result;
+    private NL.ConvertType _outputConvertType;
+    NL.ConvertType OutputConvertType
+    {
+        get => _outputConvertType;
+        set
+        {
+            _outputConvertType = value;
+            Execute ();
+        }
+    }    
+
+    protected override void OnInitialized () 
+        => models = Service.LoadGroupedTypes ();
+
+    void OnDrop (Type type) 
+        => sequence.Add (new (type));
+
+    void OnDeleteClick () 
+        => sequence.Clear ();
+
+    private void OnInputChange (ChangeEventArgs e)
+    {
+        Input = (String) e.Value!;
+        Execute ();
+    }
+
+    void Execute ()
+    {
+        ExecuteSequenceModel model = new (Input, InputConvertType, sequence, OutputConvertType);
+        Output = Service.ExecuteSequence (model, out String errors);
+
+        if (!String.IsNullOrEmpty(errors.ToString()))
+            Output = errors;
     }
 }
