@@ -5,6 +5,8 @@ namespace ncrypt.Server.Model;
 
 public class GenericModel
 {
+    #region Value-Properties
+    
     public String Name { get; set; }
     public Type ServiceType { get; set; }
     public String SelectedMethod { get; set; } = "";    
@@ -25,13 +27,17 @@ public class GenericModel
 
             return _serviceMethods;
         }
-    }    
+    }
+
+    #endregion
 
     public GenericModel (Type service, String? name = null)
     {
         Name = name ?? service.Name.Replace("Service", "");
         ServiceType = service;
     }
+
+    #region Helpers
 
     public List<String> ServiceMethodNames 
         => ServiceMethods.Select (x => x.Name).ToList ();
@@ -50,6 +56,11 @@ public class GenericModel
 
         return parameters.ToArray();
     }
+
+    public String GetUINameOfParameter(ParameterInfo parameter) 
+        => parameter.GetCustomAttribute<UIParam>()?.Name ?? parameter.Name!;
+
+    #endregion
 
     public void UpdateResult(String key, Object value)
     {

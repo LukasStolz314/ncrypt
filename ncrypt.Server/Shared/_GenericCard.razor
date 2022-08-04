@@ -6,7 +6,7 @@
     <div class="container p-0">
         <div class="row g-0 p-3 pb-1">
             <div class="row mb-1 d-flex justify-content-around align-items-center">
-                <div class="col-3">
+                <div class="col-3 mb-2">
                     <p style="font-size:30px; text-align:center">@Model.Name</p>
                 </div>
                 <div class="col-9 mb-2 d-flex justify-content-around align-items-center">
@@ -20,7 +20,7 @@
                     @foreach (var prop in Model.ConstructorParameters)
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
-                            <h5 class="mb-0 w-25" style="overflow:auto">@(prop.Name):</h5>
+                            <h5 class="mb-2 w-25" style="overflow:auto">@(Model.GetUINameOfParameter(prop)):</h5>
                             <_GenericControl OnChange="OnChange" Info=@prop></_GenericControl>
                         </div>
                     }
@@ -33,7 +33,7 @@
                     @foreach (var prop in Model.GetParametersOfMethod (Model.SelectedMethod))
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
-                            <h5 class="mb-0 w-25">@(prop.Name):</h5>
+                            <h5 class="mb-2 w-25">@(Model.GetUINameOfParameter(prop)):</h5>
                             <_GenericControl OnChange="OnChange" Info=@prop></_GenericControl>
                         </div>
                     }
