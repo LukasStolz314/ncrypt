@@ -14,7 +14,7 @@
                                ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" Value="100">
                 </RadzenProgressBar>
             }
-            <RadzenUpload Url="upload" ChooseText="Upload Service as .dll" Icon="upload"
+            <RadzenUpload Url="upload" ChooseText="Upload Service as .dll" Icon="upload" Error=@OnError
                           Visible=@(!ShowProgress) Complete=@OnComplete Progress=@TrackProgress>
             </RadzenUpload>
 
@@ -47,5 +47,10 @@
     void TrackProgress(UploadProgressArgs args)
     {
         ShowProgress = true;
+    }
+
+    void OnError()
+    {
+        ShowProgress = false;
     }
 }
