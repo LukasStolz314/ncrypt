@@ -169,12 +169,10 @@
 
     void Execute ()
     {
-        StringBuilder errors = new ();
-
         ExecuteSequenceModel model = new (Input, InputConvertType, sequence, OutputConvertType);
-        Output = Service.ExecuteSequence (model, ref errors);
+        Output = Service.ExecuteSequence (model, out String errors);
 
         if (!String.IsNullOrEmpty(errors.ToString()))
-            Output = errors.ToString ();
+            Output = errors;
     }
 }

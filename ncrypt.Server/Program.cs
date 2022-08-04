@@ -1,11 +1,4 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using ncrypt.Library;
-using ncrypt.Library.Cipher;
-using ncrypt.Library.Code;
-using ncrypt.Library.Hash;
 using ncrypt.Server;
-using ncrypt.Server.Data;
 
 var builder = WebApplication.CreateBuilder (args);
 

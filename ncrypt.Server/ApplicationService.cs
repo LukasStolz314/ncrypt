@@ -7,6 +7,13 @@ namespace ncrypt.Server;
 
 public class ApplicationService
 {
+    private Dictionary<Type, String> handledException = new()
+    {
+        [typeof(TargetInvocationException)] = "Invalid format",
+        [typeof(KeyNotFoundException)] = "Invalid format",
+        [typeof(NullReferenceException)] = "Something is missing",
+    };
+
     public List<List<Type>> LoadGroupedTypes()
     {
         List<List<Type>> groupedTypes = new();
@@ -17,6 +24,8 @@ public class ApplicationService
             ).ToList();
 
         String path = Path.Combine(Environment.CurrentDirectory, "PluginServices");
+
+        Directory.CreateDirectory(path);
 
         foreach (String dll in Directory.GetFiles(path, "*.dll"))
         {
@@ -33,35 +42,27 @@ public class ApplicationService
         return groupedTypes;
     }
 
-    public String ExecuteSequence(ExecuteSequenceModel model, ref StringBuilder errors)
+    public String ExecuteSequence(ExecuteSequenceModel model, out String errors)
     {
         String result = String.Empty;
         try
         {
             FormatInputModel fim = new(model.Input, model.InputConvertType);
-            String input = FormatInput(fim, ref errors);
+            String input = FormatInput(fim);
 
             foreach (var generic in model.sequence)
             {
                 // Get meta information
-                StringBuilder genericErrors = new();
                 Type serviceType = generic.ServiceType;
                 MethodInfo method = serviceType.GetMethod(generic.SelectedMethod)!;
 
                 // Match input with method parameters
                 FormatMethodParametersModel fmpm = new(method, input, generic);
-                var methodParameters = FormatMethodParameters(fmpm, ref genericErrors);
+                var methodParameters = FormatMethodParameters(fmpm);
 
                 // Match input with constructor parameters
                 FormatConstructorParametersModel fcpm = new(serviceType, generic);
-                var constructorParameters = FormatConstructorParameters(fcpm, ref genericErrors);
-
-                // Check if errors where thrown before method execution
-                if (!genericErrors.ToString().Equals(String.Empty))
-                {
-                    errors.Append(genericErrors);
-                    continue;
-                }
+                var constructorParameters = FormatConstructorParameters(fcpm);
 
                 // Create service and invoke method
                 var instance = Activator.CreateInstance(serviceType, constructorParameters);
@@ -69,76 +70,59 @@ public class ApplicationService
             }
 
             result = Converter.FromHex(input, model.OutputConvertType);
+            errors = String.Empty;
         }
-        catch (TargetInvocationException e)
+        catch (Exception e)
         {
-            errors.Clear();
-            errors.Append("Invalid Format");
+            errors = GetMessageFromException(e);
         }
 
         return result;
     }
 
-    private String FormatInput(FormatInputModel model, ref StringBuilder errors)
+    private String FormatInput(FormatInputModel model)
     {
         String result = String.Empty;
-        try
-        {
-            result = Converter.ToHex(model.Input, model.InputConvertType);
-        }
-        catch (FormatException e)
-        {
-            errors.AppendLine("Invalid Input Format");
-        }
+
+        result = Converter.ToHex(model.Input, model.InputConvertType);
 
         return result;
     }
 
-    private Object[] FormatMethodParameters(
-        FormatMethodParametersModel model, ref StringBuilder errors)
+    private Object?[] FormatMethodParameters(FormatMethodParametersModel model)
     {
-        List<Object> result = new();
+        List<Object?> result = new();
         foreach (var parameter in model.Method.GetParameters())
         {
-            try
+            if (parameter.Name!.Equals("input"))
+                result.Add(model.Input);
+            else
             {
-                if (parameter.Name!.Equals("input"))
-                    result.Add(model.Input);
-                else
-                    result.Add(model.Generic.Result[parameter.Name]);
-            }
-            catch (KeyNotFoundException e)
-            {
-                var splitted = e.Message.Split('\'');
-                if (splitted.Count() == 3)
-                    errors.AppendLine($"Parameter {splitted[1]} is missing");
-                continue;
+                model.Generic.Result.TryGetValue(parameter.Name, out Object? value);
+                result.Add(value);
             }
         }
 
         return result.ToArray();
     }
 
-    private Object[] FormatConstructorParameters(
-        FormatConstructorParametersModel model, ref StringBuilder errors)
+    private Object?[] FormatConstructorParameters(FormatConstructorParametersModel model)
     {
-        List<Object> constructorParams = new();
+        List<Object?> constructorParams = new();
         ParameterInfo[] parameters = model.Service.GetConstructors().First().GetParameters();
         foreach (var parameter in parameters)
         {
-            try
-            {
-                constructorParams.Add(model.Generic.Result[parameter.Name!]);
-            }
-            catch (KeyNotFoundException e)
-            {
-                var splitted = e.Message.Split('\'');
-                if (splitted.Count() == 3)
-                    errors.AppendLine($"Parameter {splitted[1]} is missing");
-                continue;
-            }
+            model.Generic.Result.TryGetValue(parameter.Name!, out Object? value);
+            constructorParams.Add(value);
         }
 
         return constructorParams.ToArray();
+    }
+
+    private String GetMessageFromException(Exception e)
+    {
+        handledException.TryGetValue(e.GetType(), out String? message);
+
+        return message ?? "Something went wrong";
     }
 }
