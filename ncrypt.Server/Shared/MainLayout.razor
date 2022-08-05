@@ -18,8 +18,7 @@
                           Visible=@(!ShowProgress) Complete=@OnComplete Progress=@TrackProgress>
             </RadzenUpload>
 
-
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <RadzenButton class="ms-1" Icon="info" Click=@(args => Navigation.NavigateTo("/how-to", true)) ButtonStyle="ButtonStyle.Secondary"/>               
         </div>
 
         <div class="content" style="padding:10px !important; height:96vh">

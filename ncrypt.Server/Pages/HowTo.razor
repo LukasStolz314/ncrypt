@@ -1,0 +1,66 @@
+﻿@page "/how-to"
+
+<!-- Converted from markdown to html with: https://www.browserling.com/tools/markdown-to-html -->
+
+<RadzenCard>
+    <h1 id="uploadownservice">Upload own service</h1>
+
+    <h2 id="requirements">Requirements</h2>
+    <hr style="margin-top:0px" />
+    <ol>
+        <li>File has to be a dynamic link library (.dll)</li>
+        <li>Project should be created as .NET 6 library</li>
+        <li>
+            Correct reference to library project
+            (<a href="https://github.com/LukasStolz314/ncrypt.Library" target="_blank">ncrypt.Library</a>)
+        </li>
+        <li>Project format as required</li>
+    </ol>
+    <br />
+
+    <h2 id="libraryreference">Library reference</h2>
+    <hr style="margin-top:0px" />
+    <p>
+        Reference in .csproj file has to be two levels above. For example: <br />
+        <code>&lt;ProjectReference Include="..\..\ncrypt.Library\ncrypt.Library.csproj" /&gt;</code>
+    </p>
+    <br />
+    <br />
+
+    <h2 id="formatrules">Format rules</h2>
+    <hr style="margin-top:0px" />
+    <ol>
+        <li>
+            The name of the class has to end with <em>Service</em>: "{ServiceName}Service".
+            For example: <em>ExampleService</em> displays as <em>Example</em>
+        </li>
+        <li>
+            The RenderUI attribute of the library must be used for all classes and methods to be rendered.
+            For the service-class the property <em>Class</em> can be set additionally. With that you can
+            define the type of the service. For Example:
+            <code>
+                [RenderUI (Class = RenderClass.Cipher)]
+            </code>
+        </li>
+        <li>
+            The method parameter that should be filled by the input textarea, has to be named
+            <em>
+                input
+            </em>
+        </li>
+        <li>
+            Other parameter names will be rendered with their original name. Optional you can
+            add the UIParam attribute and pass in a string. With that the displayed name will be overwritten
+        </li>
+    </ol>
+
+    <br />
+    <br />
+    <blockquote>
+        <p>
+            To look up example services you can access the
+            <a href="https://github.com/LukasStolz314/ncrypt.Library" target="_blank">library</a>
+            project, where you can find sample services
+        </p>
+    </blockquote>
+</RadzenCard>
