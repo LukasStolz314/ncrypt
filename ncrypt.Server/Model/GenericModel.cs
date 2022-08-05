@@ -60,6 +60,22 @@ public class GenericModel
     public String GetUINameOfParameter(ParameterInfo parameter) 
         => parameter.GetCustomAttribute<UIParam>()?.Name ?? parameter.Name!;
 
+    public List<MethodInfo> GetCopyRoutinesOfSelectedMethod()
+    {
+        List<MethodInfo> result = new ();
+        var attribute = ServiceMethods
+            .First(x => x.Name.Equals(SelectedMethod))
+            .GetCustomAttribute<UseCopy>();
+
+        if(attribute is not null)
+        {
+            foreach(var function in attribute.CopyFunctions)
+                result.Add(ServiceType.GetMethod(function)!);
+        }
+
+        return result;
+    }
+
     #endregion
 
     public void UpdateResult(String key, Object value)

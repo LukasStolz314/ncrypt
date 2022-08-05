@@ -73,6 +73,10 @@
             <div class="row h-50 pb-1 text-container">
                 <RadzenDropDown class="rounded-pill convert-type-dd" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@OutputConvertType />
                 <RadzenButton class="rounded-pill clear-button" Click=@(() => Output = String.Empty) Icon="clear" ButtonStyle="ButtonStyle.Light" />
+                @foreach (var routine in sequence)
+                {
+                    <RadzenButton class="rounded-pill clear-button" ButtonStyle="ButtonStyle.Secondary" />
+                }
                 <RadzenTextArea class="w-100 p-2 text-area" Disabled=true @bind-Value=@Output />
             </div>
         </div>
