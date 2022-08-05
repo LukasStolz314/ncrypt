@@ -14,11 +14,10 @@ public partial class UploadController : ControllerBase
                 throw new Exception("Uploaded has to be a .dll");
 
             String path = Path.Combine(Environment.CurrentDirectory,
-                "PluginServices", file.FileName);
+                "PluginServices", $"{Guid.NewGuid()}__{file.FileName}");
 
             using (Stream stream = new FileStream(path, FileMode.Create))
                 await file.CopyToAsync(stream);
-
 
             // Put your code here
             return StatusCode(200);
