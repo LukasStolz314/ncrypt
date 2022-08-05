@@ -37,7 +37,7 @@
                 <RadzenCard class="w-100 p-0 h-100">
                     <div class="row mx-2 mt-1">
                         <div class="col df-jc-ac p-1 m-1">
-                            <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@OnDeleteClick Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger" />
+                            <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@OnDeleteClick Text="Clear" Icon="delete" ButtonStyle="ButtonStyle.Danger" />
                         </div>
                         <div class="col df-jc-ac p-1 m-1">
                             <RadzenButton class="my-1 h-100 rounded-pill w-100" Click=@Execute Text="Execute" Icon="check" ButtonStyle="ButtonStyle.Success" />
@@ -56,7 +56,7 @@
                                 @foreach (var model in sequence)
                                 {
                                     <li class="mb-1">
-                                        <_GenericCard Model="model"></_GenericCard>
+                                        <_GenericCard Model="model" RemoveCard=@OnRemoveCard MoveCard=@OnMoveCard></_GenericCard>
                                     </li>
                                 }
                             </ul>
@@ -67,7 +67,7 @@
         </div>
         <div class="col-6">
             <div class="row h-50 pb-1 text-container">
-                <RadzenDropDown class="rounded-pill convert-type-dd" Style="" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@InputConvertType />                
+                <RadzenDropDown class="rounded-pill convert-type-dd" Style="" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@InputConvertType />
                 <RadzenTextArea class="w-100 p-2 text-area" Placeholder="Enter here..." @oninput=@OnInputChange />
             </div>
             <div class="row h-50 pb-1 text-container">
@@ -85,8 +85,8 @@
     String Output { get; set; } = String.Empty;
 
     // Datalists
-    List<List<Type>> models = new ();
-    List<GenericModel> sequence = new ();
+    List<List<Type>> models = new();
+    List<GenericModel> sequence = new();
 
     // Convert type dropdowns
     private NL.ConvertType _inputConvertType;
@@ -96,7 +96,7 @@
         set
         {
             _inputConvertType = value;
-            Execute ();
+            Execute();
         }
     }
 
@@ -107,29 +107,48 @@
         set
         {
             _outputConvertType = value;
-            Execute ();
+            Execute();
         }
-    }    
-
-    protected override void OnInitialized () 
-        => models = Service.LoadGroupedTypes ();
-
-    void OnDrop (Type type) 
-        => sequence.Add (new (type));
-
-    void OnDeleteClick () 
-        => sequence.Clear ();
-
-    private void OnInputChange (ChangeEventArgs e)
-    {
-        Input = (String) e.Value!;
-        Execute ();
     }
 
-    void Execute ()
+    protected override void OnInitialized()
+        => models = Service.LoadGroupedTypes();
+
+    // Event Handler
+    void OnDrop(Type type)
+        => sequence.Add(new(type));
+
+    void OnDeleteClick()
+        => sequence.Clear();
+
+    void OnRemoveCard(GenericModel model)
+        => sequence.Remove(model);
+
+    void OnMoveCard((GenericModel Model, Int32 Direction) pair)
     {
-        ExecuteSequenceModel model = new (Input, InputConvertType, sequence, OutputConvertType);
-        Output = Service.ExecuteSequence (model, out String errors);
+        var oldIndex = sequence.FindIndex(m => m.Equals(pair.Model));
+
+        Boolean minCheck = pair.Direction == 1 && oldIndex != 0;
+        Boolean maxCheck = pair.Direction == -1 && oldIndex != sequence.Count - 1;
+
+        if (minCheck || maxCheck)
+        {
+            sequence.RemoveAt(oldIndex);
+            sequence.Insert(oldIndex - pair.Direction, pair.Model);
+        }
+    }
+
+    private void OnInputChange(ChangeEventArgs e)
+    {
+        Input = (String)e.Value!;
+        Execute();
+    }
+
+    // Execute Sequence
+    void Execute()
+    {
+        ExecuteSequenceModel model = new(Input, InputConvertType, sequence, OutputConvertType);
+        Output = Service.ExecuteSequence(model, out String errors);
 
         if (!String.IsNullOrEmpty(errors.ToString()))
             Output = errors;

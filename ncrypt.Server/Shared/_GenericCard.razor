@@ -3,38 +3,55 @@
 @using NL = ncrypt.Library
 
 <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
+    <div>
+        <_ManipulateListControls Model=@Model
+                                 OnRemove=@(RemoveCard)
+                                 OnMove=@(MoveCard)>
+        </_ManipulateListControls>
+    </div>
     <div class="container p-0">
-        <div class="row g-0 p-3 pb-1">
+        <div class="row g-0 p-3 ps-0 pb-1">
             <div class="row mb-1 d-flex justify-content-around align-items-center">
-                <div class="col-3 mb-2">
+                <div class="col-3 mb-2 p-0">
                     <p style="font-size:30px; text-align:center">@Model.Name</p>
                 </div>
-                <div class="col-9 mb-2 d-flex justify-content-around align-items-center">
-                    <RadzenSelectBar TValue="String" @bind-Value=@Model.SelectedMethod Data=@Model.ServiceMethodNames />
+                <div class="col-8 mb-2">
+                    <RadzenSelectBar TValue="String"
+                                     @bind-Value=@Model.SelectedMethod
+                                     Data=@Model.ServiceMethodNames>
+                    </RadzenSelectBar>
                 </div>
-            </div>      
-            @if (Model.ConstructorParameters.Count () > 0)
+            </div>
+            @if (Model.ConstructorParameters.Count() > 0)
             {
                 <hr class="mt-2 mb-2" />
                 <div class="row">
                     @foreach (var prop in Model.ConstructorParameters)
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
-                            <h5 class="mb-2 w-25" style="overflow:auto">@(Model.GetUINameOfParameter(prop)):</h5>
-                            <_GenericControl OnChange="OnChange" Info=@prop></_GenericControl>
+                            <h5 class="mb-2 w-25" style="overflow:auto">
+                                @(Model.GetUINameOfParameter(prop)):
+                            </h5>
+                            <_GenericControl OnChange="OnChange"
+                                     Info=@prop>
+                            </_GenericControl>
                         </div>
                     }
-                </div>                
+                </div>
             }
-            @if (Model.GetParametersOfMethod (Model.SelectedMethod).Count () > 0)
+            @if (Model.GetParametersOfMethod(Model.SelectedMethod).Count() > 0)
             {
                 <hr class="mt-0 mb-2" />
                 <div class="row">
-                    @foreach (var prop in Model.GetParametersOfMethod (Model.SelectedMethod))
+                    @foreach (var prop in Model.GetParametersOfMethod(Model.SelectedMethod))
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
-                            <h5 class="mb-2 w-25">@(Model.GetUINameOfParameter(prop)):</h5>
-                            <_GenericControl OnChange="OnChange" Info=@prop></_GenericControl>
+                            <h5 class="mb-2 w-25">
+                                @(Model.GetUINameOfParameter(prop)):
+                            </h5>
+                            <_GenericControl OnChange="OnChange"
+                                     Info=@prop>
+                            </_GenericControl>
                         </div>
                     }
                 </div>
@@ -47,14 +64,20 @@
     [Parameter]
     public GenericModel Model { get; set; }
 
-    protected void OnChange ((String, Object) pair)
+    [Parameter]
+    public EventCallback<GenericModel> RemoveCard { get; set; }
+
+    [Parameter]
+    public EventCallback<(GenericModel, Int32)> MoveCard { get; set; }
+
+    protected void OnChange((String, Object) pair)
     {
-        Model.UpdateResult (pair.Item1, pair.Item2);
+        Model.UpdateResult(pair.Item1, pair.Item2);
     }
 
-    protected override void OnInitialized ()
+    protected override void OnInitialized()
     {
-        base.OnInitialized ();
-        Model.SelectedMethod = Model.ServiceMethods.First ().Name;
+        base.OnInitialized();
+        Model.SelectedMethod = Model.ServiceMethods.First().Name;
     }
 }

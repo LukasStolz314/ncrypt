@@ -1,0 +1,21 @@
+﻿@using ncrypt.Server.Model
+
+<div class="up-down-button">
+    <RadzenButton class="w-50 p-0 rounded-start rounded-0" Click=@(args => OnMove.InvokeAsync((Model, 1))) Icon="keyboard_arrow_up" ButtonStyle="ButtonStyle.Light" />
+    <div class="divider"></div>
+    <RadzenButton class="w-50 p-0 rounded-end rounded-0" Click=@(args => OnMove.InvokeAsync((Model, -1))) Icon="keyboard_arrow_down" ButtonStyle="ButtonStyle.Light" />
+</div>
+<div class="remove-button">
+    <RadzenButton class="rounded-pill" Click=@(args => OnRemove.InvokeAsync(Model)) Icon="delete" ButtonStyle="ButtonStyle.Danger" />
+</div>
+
+@code{
+    [Parameter]
+    public EventCallback<GenericModel> OnRemove { get; set; }
+
+    [Parameter]
+    public EventCallback<(GenericModel, Int32)> OnMove { get; set; }
+
+    [Parameter]
+    public GenericModel Model { get; set; }
+}
