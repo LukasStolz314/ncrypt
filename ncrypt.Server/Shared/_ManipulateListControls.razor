@@ -1,15 +1,27 @@
 ﻿@using ncrypt.Server.Model
 
-<div class="up-down-button">
-    <RadzenButton class="w-50 p-0 rounded-start rounded-0" Click=@(args => OnMove.InvokeAsync((Model, 1))) Icon="keyboard_arrow_up" ButtonStyle="ButtonStyle.Light" />
-    <div class="divider"></div>
-    <RadzenButton class="w-50 p-0 rounded-end rounded-0" Click=@(args => OnMove.InvokeAsync((Model, -1))) Icon="keyboard_arrow_down" ButtonStyle="ButtonStyle.Light" />
-</div>
-<div class="remove-button">
-    <RadzenButton class="rounded-pill" Click=@(args => OnRemove.InvokeAsync(Model)) Icon="delete" ButtonStyle="ButtonStyle.Danger" />
+<div class="d-flex flex-column align-items-center">
+    <div class="mb-1">
+        <RadzenButton class="rounded-pill"
+                      Click=@(args => OnRemove.InvokeAsync(Model))
+                      Icon="delete"
+                      ButtonStyle="ButtonStyle.Danger" />
+    </div>
+    <div class="d-flex">
+        <RadzenButton class="p-0 rounded-start rounded-0"
+                      Click=@(args => OnMove.InvokeAsync((Model, 1)))
+                      Icon="keyboard_arrow_up"
+                      ButtonStyle="ButtonStyle.Light">
+        </RadzenButton>
+        <RadzenButton class="p-0 rounded-end rounded-0"
+                      Click=@(args => OnMove.InvokeAsync((Model, -1)))
+                      Icon="keyboard_arrow_down"
+                      ButtonStyle="ButtonStyle.Light">
+        </RadzenButton>
+    </div>
 </div>
 
-@code{
+@code {
     [Parameter]
     public EventCallback<GenericModel> OnRemove { get; set; }
 

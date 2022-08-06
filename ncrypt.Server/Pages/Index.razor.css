@@ -19,7 +19,7 @@
     border: solid 0.1px #1A3651;
     position: absolute;
     right: 10px;
-    top: 10px
+    top: 10px;
 }
 
 ::deep .clear-button {
@@ -27,6 +27,13 @@
     position: absolute;
     right: 10px;
     top: 50px;
+}
+
+::deep .copy-button {
+    width: fit-content;
+    padding: 0 15px 0 15px;
+    position: absolute;
+    right: 10px;
 }
 
 ::deep .text-area {

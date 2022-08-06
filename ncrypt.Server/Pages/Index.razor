@@ -67,12 +67,35 @@
         </div>
         <div class="col-6">
             <div class="row h-50 pb-1 text-container">
-                <RadzenDropDown class="rounded-pill convert-type-dd" Style="" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@InputConvertType />
+                <RadzenDropDown class="rounded-pill convert-type-dd" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@InputConvertType />
                 <RadzenTextArea class="w-100 p-2 text-area" Placeholder="Enter here..." @oninput=@OnInputChange />
             </div>
             <div class="row h-50 pb-1 text-container">
-                <RadzenDropDown class="rounded-pill convert-type-dd" TValue="NL.ConvertType" Data=Enum.GetValues(typeof(NL.ConvertType)) @bind-Value=@OutputConvertType />
-                <RadzenButton class="rounded-pill clear-button" Click=@(() => Output = String.Empty) Icon="clear" ButtonStyle="ButtonStyle.Light" />
+                <RadzenDropDown class="rounded-pill convert-type-dd"
+                                TValue="NL.ConvertType"
+                                Data=Enum.GetValues(typeof(NL.ConvertType))
+                                @bind-Value=@OutputConvertType>
+                </RadzenDropDown>
+                <RadzenButton class="rounded-pill clear-button"
+                              Click=@(() => Output = String.Empty)
+                              Icon="clear"
+                              ButtonStyle="ButtonStyle.Light">
+                </RadzenButton>
+
+                @{
+                    Int32 buttonSpacing = 50;
+                }
+                @foreach (var routine in (sequence.LastOrDefault()?.GetCopyRoutinesOfSelectedMethod() ?? new()))
+                {
+                    buttonSpacing += 40;
+                    String topSpacing = $"top:{buttonSpacing}px;";
+                    <RadzenButton class="rounded-pill copy-button"
+                              Text="@(routine.GetCustomAttribute<CopyRoutine>().Name)"
+                              Click=@(args => Service.ExecuteCopy(routine, Output))
+                              Style="@topSpacing"
+                              ButtonStyle="ButtonStyle.Secondary">
+                    </RadzenButton>
+                }
                 <RadzenTextArea class="w-100 p-2 text-area" Disabled=true @bind-Value=@Output />
             </div>
         </div>
@@ -144,7 +167,7 @@
         Execute();
     }
 
-    // Execute Sequence
+    // Execution
     void Execute()
     {
         ExecuteSequenceModel model = new(Input, InputConvertType, sequence, OutputConvertType);

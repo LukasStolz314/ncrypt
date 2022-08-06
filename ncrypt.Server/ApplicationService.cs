@@ -1,12 +1,18 @@
-﻿using ncrypt.Library;
+﻿using Microsoft.JSInterop;
+using ncrypt.Library;
 using ncrypt.Server.Model;
 using System.Reflection;
-using System.Text;
 
 namespace ncrypt.Server;
 
 public class ApplicationService
 {
+    private IJSRuntime _ijsRuntime;
+    public ApplicationService(IJSRuntime ijsRuntime)
+    {
+        _ijsRuntime = ijsRuntime;
+    }
+
     private Dictionary<Type, String> handledException = new()
     {
         [typeof(TargetInvocationException)] = "Invalid format",
@@ -40,6 +46,15 @@ public class ApplicationService
         ).ToList();
 
         return groupedTypes;
+    }
+
+    public void ExecuteCopy(MethodInfo method, String text)
+    {
+        var instance = Activator.CreateInstance(method.DeclaringType!);
+        String result = (String?) method.Invoke(
+            instance, new object[] { text }) ?? String.Empty;
+
+        _ijsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", result);
     }
 
     public String ExecuteSequence(ExecuteSequenceModel model, out String errors)

@@ -3,29 +3,29 @@
 @using NL = ncrypt.Library
 
 <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
-    <div>
-        <_ManipulateListControls Model=@Model
-                                 OnRemove=@(RemoveCard)
-                                 OnMove=@(MoveCard)>
-        </_ManipulateListControls>
-    </div>
     <div class="container p-0">
-        <div class="row g-0 p-3 ps-0 pb-1">
-            <div class="row mb-1 d-flex justify-content-around align-items-center">
-                <div class="col-3 mb-2 p-0">
+        <div class="row g-0 px-3 py-2">
+            <div class="row d-flex justify-content-around align-items-center">
+                <div class="col-3 p-0">
                     <p style="font-size:30px; text-align:center">@Model.Name</p>
                 </div>
-                <div class="col-8 mb-2">
+                <div class="col-8">
                     <RadzenSelectBar TValue="String"
                                      @bind-Value=@Model.SelectedMethod
                                      Data=@Model.ServiceMethodNames>
                     </RadzenSelectBar>
                 </div>
+                <div class="col-1">
+                    <_ManipulateListControls Model=@Model
+                                             OnRemove=@(RemoveCard)
+                                             OnMove=@(MoveCard)>
+                    </_ManipulateListControls>
+                </div>
             </div>
             @if (Model.ConstructorParameters.Count() > 0)
             {
-                <hr class="mt-2 mb-2" />
-                <div class="row ms-2">
+                <hr class="my-2" />
+                <div class="row">
                     @foreach (var prop in Model.ConstructorParameters)
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">
@@ -41,8 +41,8 @@
             }
             @if (Model.GetParametersOfMethod(Model.SelectedMethod).Count() > 0)
             {
-                <hr class="mt-0 mb-2" />
-                <div class="row ms-2">
+                <hr class="my-2" />
+                <div class="row">
                     @foreach (var prop in Model.GetParametersOfMethod(Model.SelectedMethod))
                     {
                         <div class="d-flex justify-content-start align-items-center mb-1">

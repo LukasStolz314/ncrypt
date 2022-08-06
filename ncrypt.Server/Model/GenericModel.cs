@@ -6,23 +6,23 @@ namespace ncrypt.Server.Model;
 public class GenericModel
 {
     #region Value-Properties
-    
+
     public String Name { get; set; }
     public Type ServiceType { get; set; }
-    public String SelectedMethod { get; set; } = "";    
-    public Dictionary<String, Object> Result { get; } = new ();    
+    public String SelectedMethod { get; set; } = "";
+    public Dictionary<String, Object> Result { get; } = new();
 
     private List<MethodInfo>? _serviceMethods;
     public List<MethodInfo> ServiceMethods
     {
-        get 
+        get
         {
             if (_serviceMethods is null || _serviceMethods.Count == 0)
             {
-                _serviceMethods = ServiceType.GetMethods ()
-                    .Where (m => m.CustomAttributes
-                         .Any (a => a.AttributeType == typeof (RenderUI))
-                    ).ToList ();
+                _serviceMethods = ServiceType.GetMethods()
+                    .Where(m => m.CustomAttributes
+                         .Any(a => a.AttributeType == typeof(RenderUI))
+                    ).ToList();
             }
 
             return _serviceMethods;
@@ -31,7 +31,7 @@ public class GenericModel
 
     #endregion
 
-    public GenericModel (Type service, String? name = null)
+    public GenericModel(Type service, String? name = null)
     {
         Name = name ?? service.Name.Replace("Service", "");
         ServiceType = service;
@@ -39,32 +39,49 @@ public class GenericModel
 
     #region Helpers
 
-    public List<String> ServiceMethodNames 
-        => ServiceMethods.Select (x => x.Name).ToList ();
+    public List<String> ServiceMethodNames
+        => ServiceMethods.Select(x => x.Name).ToList();
 
-    public ParameterInfo[] ConstructorParameters 
-        => ServiceType.GetConstructors ().First ().GetParameters ();
+    public ParameterInfo[] ConstructorParameters
+        => ServiceType.GetConstructors().First().GetParameters();
 
-    public ParameterInfo[] GetParametersOfMethod (String method)
+    public ParameterInfo[] GetParametersOfMethod(String method)
     {
         var parameters = ServiceMethods
-            .First (x => x.Name.Equals (method))
-            .GetParameters ()
+            .First(x => x.Name.Equals(method))
+            .GetParameters()
             .ToList();
 
-        parameters.RemoveAll(x => x.Name.Equals ("input"));       
+        parameters.RemoveAll(x => x.Name.Equals("input"));
 
         return parameters.ToArray();
     }
 
-    public String GetUINameOfParameter(ParameterInfo parameter) 
+    public String GetUINameOfParameter(ParameterInfo parameter)
         => parameter.GetCustomAttribute<UIParam>()?.Name ?? parameter.Name!;
+
+    public List<MethodInfo> GetCopyRoutinesOfSelectedMethod()
+    {
+        List<MethodInfo> result = new();
+        var method = ServiceMethods
+            .FirstOrDefault(x => x.Name.Equals(SelectedMethod));
+
+        var attribute = method?.GetCustomAttribute<UseCopy>();
+
+        if (attribute is not null)
+        {
+            foreach (var function in attribute.CopyFunctions)
+                result.Add(ServiceType.GetMethod(function)!);
+        }
+
+        return result;
+    }
 
     #endregion
 
     public void UpdateResult(String key, Object value)
     {
-        if(Result.ContainsKey(key))
+        if (Result.ContainsKey(key))
             Result[key] = value;
         else
             Result.Add(key, value);
