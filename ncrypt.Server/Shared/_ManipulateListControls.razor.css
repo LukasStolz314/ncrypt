@@ -1,21 +1,4 @@
-﻿.remove-button {
-    display: flex;
-    justify-content: flex-end;
-    width: 6%;
-    position: absolute;
-    right: 8px;
-    top: 8px;
-}
-
-.up-down-button {
-    display: flex;
-    width: 6%;
-    position: absolute;
-    right: 50px;
-    top: 8px;
-}
-
-.divider {
+﻿.divider {
     position: absolute;
     left: 49%;
     border-left: 0.5px solid #afb3b7;
