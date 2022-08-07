@@ -2,11 +2,11 @@
 
 <!-- Converted from markdown to html with: https://www.browserling.com/tools/markdown-to-html -->
 
-<RadzenCard>
+<RadzenCard class="pb-1">
     <h1 id="uploadownservice">Upload own service</h1>
 
-    <h2 id="requirements">Requirements</h2>
-    <hr style="margin-top:0px" />
+    <h2 class="m-0" id="requirements">Requirements</h2>
+    <hr class="mt-1 mb-2" />
     <ol>
         <li>File has to be a dynamic link library (.dll)</li>
         <li>Project should be created as .NET 6 library</li>
@@ -16,19 +16,20 @@
         </li>
         <li>Project format as required</li>
     </ol>
-    <br />
 
-    <h2 id="libraryreference">Library reference</h2>
-    <hr style="margin-top:0px" />
-    <p>
+
+
+    <h2 class="m-0" id="libraryreference">Library reference</h2>
+    <hr class="mt-1 mb-2" />
+    <p class="mb-3">
         Reference in .csproj file has to be two levels above. For example: <br />
         <code>&lt;ProjectReference Include="..\..\ncrypt.Library\ncrypt.Library.csproj" /&gt;</code>
     </p>
-    <br />
-    <br />
 
-    <h2 id="formatrules">Format rules</h2>
-    <hr style="margin-top:0px" />
+
+
+    <h2 class="m-0" id="formatrules">Format rules</h2>
+    <hr class="mt-1 mb-2" />
     <ol>
         <li>
             The name of the class has to end with <em>Service</em>: "{ServiceName}Service".
@@ -50,12 +51,78 @@
         </li>
         <li>
             Other parameter names will be rendered with their original name. Optional you can
-            add the UIParam attribute and pass in a string. With that the displayed name will be overwritten
+            add the <em>UIParam</em> attribute and pass in a string. With that the displayed name will be overwritten
+        </li>
+        <li>
+            To override the default value you have to set the second <em>UIParam</em> attribute parameter
+        </li>
+        <li>
+            Every string input to the service will be in hex format. The returned value also should be a
+            hex formatted value. To convert the input to ascii (or base64) and later on back to hex you can
+            use the <em>Converter</em> class of the library project. Here you pass in the the text first
+            and then the conversion type
         </li>
     </ol>
 
+
+
+    <h2 class="m-0" id="formatrules">Attributes</h2>
+    <hr class="mt-1 mb-3" />
+
+    <div class="container-fluid d-flex">
+        <RadzenCard class="attribute-card mx-1">
+            <h4 class="mb-0" id="renderui">RenderUI</h4>
+            <p>
+                <strong>Parameter:</strong> Class (RenderClass) <br />
+                <strong>Usage:</strong> Use on classes and methods. Set the <em>Class</em> Parameter for classes to define their type <br />
+                <strong>Effect:</strong> Renders the service-class in the selection list and makes the selected methods able to get choosen. <br />
+                <strong>Example:</strong> <br />
+                <ol>
+                    <li>
+                        On Class: <code>[RenderUI(Class = RenderClass.Cipher)]</code>
+                    </li>
+                    <li>
+                        On Method: <code>[RenderUI]</code>
+                    </li>
+                </ol>
+            </p>
+        </RadzenCard>
+        <RadzenCard class="attribute-card mx-1">
+            <h4 class="mb-0 mt-2" id="uiparam">UIParam</h4>
+            <p><strong>Parameter:</strong> </p>
+            <ul class="mb-0">
+                <li>Name (String)</li>
+                <li>DefaultValue (String)</li>
+            </ul>
+            <p>
+                <strong>Usage:</strong> Use in front of parameter to specify meta information <br />
+                <strong>Effect:</strong> Gives the control label the defined <em>Name</em> and adds the <em>DefaultValue</em> as initial control value <br />
+                <strong>Example:</strong> <code>([UIParam("Key Size", "1024")] Int32 keySize)</code>
+            </p>
+        </RadzenCard>
+        <RadzenCard class="attribute-card mx-1">
+            <h4 class="mb-0 mt-4" id="usecopy">UseCopy</h4>
+            <p>
+                <strong>Parameter:</strong> CopyFunctions (List&lt;String>) <br />
+                <strong>Usage:</strong> Use on method where the output is able to be copied by defined copy function <br />
+                <strong>Effect:</strong> Renders button for defined copy button on output textarea <br />
+                <strong>Example:</strong> <code>[UseCopy("CopyPublicKey", "CopyPrivateKey")]</code>
+            </p>
+        </RadzenCard>
+        <RadzenCard class="attribute-card mx-1">
+            <h4 class="mb-0 mt-4" id="copyroutine">CopyRoutine</h4>
+            <p>
+                <strong>Parameter:</strong> Name (String) <br />
+                <strong>Usage:</strong> Use on copy function <br />
+                <strong>Effect:</strong> Makes the copy function available on the ui <br />
+                <strong>Example:</strong> <code>[CopyRoutine("Copy Public Key")]</code>
+            </p>
+        </RadzenCard>
+    </div>
     <br />
-    <br />
+
+
+
     <blockquote>
         <p>
             To look up example services you can access the
@@ -64,3 +131,10 @@
         </p>
     </blockquote>
 </RadzenCard>
+
+<style>
+    .attribute-card{
+        max-width: 26%;
+        background-color: #a9e2ff40;
+    }
+</style>

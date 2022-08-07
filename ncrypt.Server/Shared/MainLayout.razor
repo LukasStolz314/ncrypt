@@ -18,7 +18,8 @@
                           Visible=@(!ShowProgress) Complete=@OnComplete Progress=@TrackProgress>
             </RadzenUpload>
 
-            <RadzenButton class="ms-1" Icon="info" Click=@(args => Navigation.NavigateTo("/how-to", true)) ButtonStyle="ButtonStyle.Secondary"/>               
+            <RadzenButton class="ms-1" Icon="info" Click=@(args => Navigation.NavigateTo("/how-to", true)) ButtonStyle="ButtonStyle.Secondary" />
+            <RadzenButton class="ms-1" Icon="settings_ethernet" Click=@(args => Navigation.NavigateTo("/", true)) ButtonStyle="ButtonStyle.Secondary" />
         </div>
 
         <div class="content" style="padding:10px !important; height:96vh">
