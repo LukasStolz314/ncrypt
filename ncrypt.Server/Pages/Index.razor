@@ -91,7 +91,7 @@
                     String topSpacing = $"top:{buttonSpacing}px;";
                     <RadzenButton class="rounded-pill copy-button"
                               Text="@(routine.GetCustomAttribute<CopyRoutine>().Name)"
-                              Click=@(args => Service.ExecuteCopy(routine, Output))
+                              Click=@(args => Service.ExecuteCopy(new(routine, Output, OutputConvertType)))
                               Style="@topSpacing"
                               ButtonStyle="ButtonStyle.Secondary">
                     </RadzenButton>

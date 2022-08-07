@@ -48,11 +48,14 @@ public class ApplicationService
         return groupedTypes;
     }
 
-    public void ExecuteCopy(MethodInfo method, String text)
+    public void ExecuteCopy(ExecuteCopyModel model)
     {
-        var instance = Activator.CreateInstance(method.DeclaringType!);
-        String result = (String?) method.Invoke(
-            instance, new object[] { text }) ?? String.Empty;
+        var instance = Activator.CreateInstance(model.Method.DeclaringType!);
+        String hex = Converter.ToHex(model.Text, model.OutputConvertType);
+        String hexResult = (String?) model.Method.Invoke(
+            instance, new object[] { hex }) ?? String.Empty;
+
+        String result = Converter.FromHex(hexResult, model.OutputConvertType);
 
         _ijsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", result);
     }
