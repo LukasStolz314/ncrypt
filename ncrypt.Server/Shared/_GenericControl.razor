@@ -49,10 +49,10 @@
 </div>
 
 @code {
-    [Parameter]
+    [Parameter, EditorRequired]
     public ParameterInfo? Info { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public EventCallback<(String, Object)> OnChange { get; set; }
 
     private Object? Value = String.Empty;

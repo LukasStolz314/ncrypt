@@ -61,13 +61,13 @@
 </RadzenCard>
 
 @code {
-    [Parameter]
+    [Parameter, EditorRequired]
     public GenericModel Model { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public EventCallback<GenericModel> RemoveCard { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public EventCallback<(GenericModel, Int32)> MoveCard { get; set; }
 
     protected void OnChange((String, Object) pair)
